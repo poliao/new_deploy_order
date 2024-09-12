@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Menu from '../assets/menu-detail/menu.png'; // ถ้ามีภาพจริงสามารถใช้ {menu.img} แทน
 import FoodBankIcon from '@mui/icons-material/FoodBank';
+import { API_ROUTES } from "../components/API_share";
 
 const Status = () => {
     const [basketData, setBasketData] = useState([]);
@@ -15,7 +16,7 @@ const Status = () => {
     useEffect(() => {
         const fetchMenuData = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/baskets/table/${tableid}`);
+                const response = await fetch(API_ROUTES.API_r+`/api/baskets/table/${tableid}`);
                 if (!response.ok) throw new Error('Network response was not ok');
                 const data = await response.json();
                 setBasketData(data);
@@ -28,7 +29,7 @@ const Status = () => {
 
         fetchMenuData();
 
-        const eventSource = new EventSource(`http://localhost:8080/api/baskets/table/${tableid}/realtime`);
+        const eventSource = new EventSource(API_ROUTES.API_r+`/api/baskets/table/${tableid}/realtime`);
 
         eventSource.addEventListener('statusUpdate', (event) => {
             const updatedData = JSON.parse(event.data);
