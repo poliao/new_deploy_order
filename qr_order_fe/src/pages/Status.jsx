@@ -10,11 +10,12 @@ const Status = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const { tableid } = localStorage.getItem('tableId');
+    const { tableid }  = useParams();
    
 
     useEffect(() => {
         const fetchMenuData = async () => {
+
             try {
                 const response = await fetch(API_ROUTES.API_r+`/api/baskets/table/${tableid}`);
                 if (!response.ok) throw new Error('Network response was not ok');
