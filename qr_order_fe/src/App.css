@@ -1,0 +1,221 @@
+
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap');
+
+body {
+  background-color: #F4F3F8;
+  font-family: "Noto Sans Thai", sans-serif;
+}
+
+.bg-gray{
+ background-color: #F4F3F8;
+}
+
+.orange-back{
+  background-color: #FF724C;
+}
+
+.orange-text{
+  color: #FF724C;
+}
+
+.yellow-back{
+  background-color: #FCC050;
+}
+
+.yellow-text{
+  color: #FCC050;
+}
+
+.yellow-glow{
+  box-shadow: #FCC050 5px 5px  15px;
+ 
+}
+
+.blue-back{
+  background-color: #4F8CFF;
+}
+
+.detail{
+  color: #A4A4A4;
+  font-size: 14px;
+}
+
+.sub-title{
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.title{
+  font-size: 24px;
+}
+
+
+.container-sm{
+  padding: 0 12px;
+}
+.Main-Navbar img{
+  width: 30px;
+}
+
+.add-menage input{
+  padding: 12px 12px;
+  border: 1px solid #C5C5C5;
+  border-radius: 6px;
+}
+
+.add-menage option{
+  font-size: 12px;
+}
+
+.SiteBar li{
+  font-size: 24px;
+  color: white;
+  line-height: 3;
+}
+
+.menuDetail .box-undo{
+  width: 46px;
+  height: 46px;
+  background-color: white;
+  position: absolute;
+ top: 20px;
+ left: 20px;
+ border-radius: 6px;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ color: #FF724C;
+}
+
+.menuDetail .basket-box{
+  width: 46px;
+  height: 46px;
+  background-color: white;
+  position: absolute;
+ top: 20px;
+ right: 20px;
+ border-radius: 6px;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ color: #000000;
+}
+
+.menuDetail .basket-box .count-basket{
+  position: absolute;
+  background-color: #FF724C;
+  width: 24px;
+  height: 24px;
+  border-radius: 100%;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  right: -5px;
+}
+
+.menuDetail .star-box{
+  background-color: white;
+  display: flex;
+  position: absolute;
+  bottom: 20px;
+  border-radius: 16px;
+  font-weight: bold;
+}
+
+.menuDetail .sub-check{
+  border-bottom: 1px solid #C5C5C5;
+  margin-bottom: 6px;
+}
+
+.menuDetail .btn-add-basket{
+  position: fixed;
+  bottom: 20px;
+  background-color: #FF724C;
+  color: white;
+  z-index: 1;
+  height: 40px;
+  border-radius: 16px;
+  width: 95%;
+
+  
+}
+
+.menuDetail .food-detail{
+  margin-bottom: 80px;
+}
+
+.basket .card-menu img{
+  width: 163px;
+}
+
+.basket .card-menu{
+  border-radius: 12px;
+  border: 1px solid #C5C5C5;
+
+}
+
+
+.basket .btn-add-basket{
+
+  bottom: 20px;
+  background-color: #FF724C;
+  color: white;
+  z-index: 1;
+  height: 40px;
+  border-radius: 16px;
+  width: 100%;
+
+  
+}
+
+.basket{
+  margin-bottom: 120px;
+}
+
+.basket .box-monney{
+
+  padding: 10px;
+  padding-bottom: 20px;
+  border-radius: 6px ;
+
+}
+
+
+
+.css-1to7aaw-MuiButtonBase-root-MuiPaginationItem-root.Mui-selected {
+  color: #fff;
+  background-color: #FF724C !important;
+}
+
+
+a{
+  text-decoration: none;
+  cursor: pointer;
+}
+
+
+.login{
+  height: 100dvh;
+}
+
+
+@media screen and (min-width: 430px) {
+  .menuDetail .menu-image{
+    width: 100%;
+  }
+}
+
+@media screen and (min-width: 640px) {
+  .container-edit{
+    padding: 0 5%;
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  .container-edit{
+    padding: 0 25%;
+  }
+}
