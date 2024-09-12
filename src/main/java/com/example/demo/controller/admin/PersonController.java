@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "https://new-deploy-order.onrender.com")
 @RestController
 @RequestMapping("/api")
 public class PersonController {

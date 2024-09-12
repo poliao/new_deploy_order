@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "https://new-deploy-order.onrender.com")
 @RestController
 @RequestMapping("/admin/menus")
 public class menucontroller {
