@@ -51,7 +51,7 @@ const ServiceHome = () => {
 
   const handleClickOpen = (tableId) => {
     console.log(tableId);
-    setQrValue("http://localhost:5173/home/"+tableId)
+    setQrValue("https://new-deploy-order.onrender.com/home/"+tableId)
     setOpen(true);
   };
 
