@@ -11,6 +11,8 @@ import { useParams } from "react-router-dom";
 const MenuDetail = () => {
   const [count, setCount] = useState(1); 
 
+  const storedtableId = localStorage.getItem("tableId");
+
 
   
   const { menuid } = useParams();
@@ -152,7 +154,7 @@ console.log("Updated Orders:", updatedOrders);
         <div className="relative">
           <img src={Menu} alt="" className="menu-image" />
           <div className="box-undo">
-            <a href="/home/1"><ArrowBackIcon className="text-xl" /></a>
+            <a ><ArrowBackIcon className="text-xl" onClick={() => {  window.location.href = `/home/${storedtableId}` }} /></a>
           </div>
           <div className="basket-box">
             <div className="relative">

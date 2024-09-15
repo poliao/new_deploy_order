@@ -1,26 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import Menu from '../assets/menu-detail/menu.png'; // ถ้ามีภาพจริงสามารถใช้ {menu.img} แทน
+import Menu from '../assets/menu-detail/menu.png'; // Image is imported here
 import FoodBankIcon from '@mui/icons-material/FoodBank';
+import axios from 'axios';
 import { API_ROUTES } from "../components/API_share";
 
 const Status = () => {
     const [basketData, setBasketData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    const { tableid }  = useParams();
-   
+    const storedtableId = localStorage.getItem("tableId");
+    const tableId = storedtableId;
 
     useEffect(() => {
         const fetchMenuData = async () => {
-
             try {
-                const response = await fetch(API_ROUTES.API_r+`/api/baskets/table/${tableid}`);
-                if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
-                setBasketData(data);
+                const response = await axios.get(API_ROUTES.API_r + `/api/baskets/table/${tableId}`);
+                setBasketData(response.data); // `response.data` already contains the JSON parsed result
                 setLoading(false);
             } catch (error) {
                 setError(error.message);
@@ -30,7 +26,7 @@ const Status = () => {
 
         fetchMenuData();
 
-        const eventSource = new EventSource(API_ROUTES.API_r+`/api/baskets/table/${tableid}/realtime`);
+        const eventSource = new EventSource(API_ROUTES.API_r + `/api/baskets/table/${tableId}/realtime`);
 
         eventSource.addEventListener('statusUpdate', (event) => {
             const updatedData = JSON.parse(event.data);
@@ -43,9 +39,9 @@ const Status = () => {
         });
 
         return () => {
-            eventSource.close();
+            eventSource.close(); // Ensure the event source is closed on cleanup
         };
-    }, [tableid]);
+    }, [tableId]); // Make sure `tableId` is consistent here
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -53,12 +49,12 @@ const Status = () => {
     return (
         <div className="basket">
             <div className='flex justify-center'>
-                <div className='fixed bottom-0 box-monney  w-full xl:w-1/2'>
+                <div className='fixed bottom-0 box-monney w-full xl:w-1/2'>
                     <div className='flex justify-between mb-3'>
                         <div>Vat</div>
                         <div className='orange-text'>฿ 0.00</div>
                     </div>
-                    <div className='btn-add-basket flex justify-center items-center'>
+                    <div className='btn-add-basket flex justify-center items-center' onClick={() => { window.location.href = `/payment` }}>
                         <FoodBankIcon />
                         <div className='ms-3'>ชำระเงิน</div>
                     </div>
@@ -67,7 +63,9 @@ const Status = () => {
             <div className="shadow-xl rounded-b-2xl">
                 <div className="container-sm">
                     <div className="flex pt-14 pb-10 w-full items-center">
-                        <div><a href='/home/1'><ArrowBackIcon className="orange-text" /></a></div>
+                        <div>
+                            <ArrowBackIcon className="orange-text" onClick={() => { window.location.href = `/home/${storedtableId}` }} />
+                        </div>
                         <div className="flex-1 text-center me-6 font-bold">สถานะอาหาร</div>
                     </div>
                 </div>
@@ -78,11 +76,10 @@ const Status = () => {
                     {Array.isArray(basketData) && basketData.length > 0 ? (
                         basketData.map((menu) => (
                             <div key={menu.menuId} className="flex card-menu mb-3">
-                                {/* <img src={menu.img || Menu} alt={menu.nameMenu} /> */}
-                                <img src={Menu} alt={menu.nameMenu}  />
+                                <img src={Menu} alt={menu.nameMenu} />
                                 <div className='flex flex-col justify-between w-full p-2'>
                                     <div className='font-bold'>{menu.nameMenu}</div>
-                                    <div className='text-sm'>{menu.detailMenu || 'ไม่มีรายละเอียด'}</div>
+                                    <div className='text-sm'>จำนวนจาน X{menu.total || 'ไม่มีรายละเอียด'}</div>
                                     <ul className='text-sm list-disc ps-4'>
                                         {menu.optionsMenu && menu.optionsMenu.length > 0 ? (
                                             menu.optionsMenu.map((option, index) => (
@@ -99,7 +96,7 @@ const Status = () => {
                                             <div>{menu.price}</div>
                                             <div>บาท</div>
                                         </div>
-                                        <div className={`status-text ${menu.status === 'รอเสริฟฟฟฟ' ? 'text-red-800' : 'text-green-800'}`}>
+                                        <div className={`status-text ${menu.status === 'รอเสิร์ฟ' ? 'text-red-800' : 'text-green-800'}`}>
                                             {menu.status}
                                         </div>
                                     </div>

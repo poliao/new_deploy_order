@@ -13,10 +13,10 @@ export const NavbarCategory = (props) => {
   
 
 
-  useEffect(() => {
-    const BreakeTable = JSON.parse(storedtableId);
-    console.log(BreakeTable);
-  }, [storedtableId]);
+  // useEffect(() => {
+  //   const BreakeTable = JSON.parse(storedtableId);
+  //   console.log(BreakeTable);
+  // }, [storedtableId]);
 
 
     return (
@@ -26,7 +26,7 @@ export const NavbarCategory = (props) => {
               <div className='pt-14 pb-10'>
                   <div className='flex justify-between'>
                     <div className='flex items-center'>
-                      <a href='/home/1' ><ArrowBackIcon className='orange-text' /></a>
+                      <a ><ArrowBackIcon className='orange-text' onClick={() => {  window.location.href = `/home/${storedtableId}` }} /></a>
                       <div className='font-bold flex items-end whitespace-nowrap ms-3'>{props.title}</div>
                     </div>
                     <div className="flex">

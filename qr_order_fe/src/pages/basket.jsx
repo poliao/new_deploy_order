@@ -9,6 +9,8 @@ import { API_ROUTES } from "../components/API_share";
 const Basket = () => {
   const [mergedItems, setMergedItems] = useState([]);
 
+  const storedtableId = localStorage.getItem("tableId");
+
 
   const PostOrder = () => {
     mergedItems.forEach((item) => {
@@ -196,7 +198,7 @@ return (
       <div className="container-sm">
         <div className="flex pt-14 pb-10 w-full items-center">
           <div>
-           <a href="/home/1"> <ArrowBackIcon className="orange-text" /></a>
+           <a> <ArrowBackIcon className="orange-text" onClick={() => {  window.location.href = `/home/${storedtableId}` }}  /></a>
           </div>
           <div className="flex-1 text-center me-6 font-bold">ตะกร้า</div>
         </div>

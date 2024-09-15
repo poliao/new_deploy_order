@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
+import axios from 'axios'; // Import Axios here
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
 import Search from "../assets/topMenu-img/search.svg";
-import Table from '../assets/navbar-img/table.svg'
+import Table from '../assets/navbar-img/table.svg';
 
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -35,10 +36,9 @@ const ServiceHome = () => {
         }
         const fetchTables = async () => {
             try {
-                const response = await fetch(API_ROUTES.API_r+'/api/tables');
-                const data = await response.json();
-                console.log(data); // Log the response data
-                setTables(data); // Set the fetched data to the state
+                // Make API request using Axios
+                const response = await axios.get(API_ROUTES.API_r + '/api/tables');
+                setTables(response.data); // Set the fetched data to the state
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -49,39 +49,47 @@ const ServiceHome = () => {
 
     const [open, setOpen] = React.useState(false);
 
-  const handleClickOpen = (tableId) => {
-    console.log(tableId);
-    setQrValue("https://new-deploy-order.onrender.com/home/"+tableId)
-    setOpen(true);
-  };
+    const handleClickOpen = (tableId) => {
+        setQrValue("https://new-deploy-order.onrender.com/home/" + tableId);
+        setOpen(true);
+    };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
-
+    const handleClose = () => {
+        setOpen(false);
+    };
 
     return (
-        <div >
-                 <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {"Qr Code"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-          <QRCodeCanvas value={qrValue} size={256} />
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>ปิดหน้าต่าง</Button>
-         
-        </DialogActions>
-      </Dialog>
-            
+        <div>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                sx={{
+                    '& .MuiDialogActions-root': {
+                        button: {
+                            color: 'red',
+                            fontWeight: 'bold',
+                            fontSize: '16px',
+                            border: '1px solid red',
+                            padding: '10px 20px',
+                        }
+                    },
+                }}
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Qr Code"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        <QRCodeCanvas value={qrValue} size={256} />
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>ปิดหน้าต่าง</Button>
+                </DialogActions>
+            </Dialog>
+
             <div className='rounded-b-2xl shadow-xl bg-white mb-4 '>
                 <div className='container-sm'>
                     <div className='pt-14 pb-10'>
@@ -95,7 +103,7 @@ const ServiceHome = () => {
                 </div>
             </div>
 
-          <div className="container-edit">
+            <div className="container-edit">
                 <div className="container-sm ">
                     <div className="flex">
                         <input
@@ -110,7 +118,7 @@ const ServiceHome = () => {
                         </button>
                     </div>
                 </div>
-    
+
                 {/* Category Swiper */}
                 <div className="category text-base mt-5" style={{ paddingLeft: "12px" }}>
                     <div className="font-bold">หมวดหมู่</div>
@@ -128,14 +136,14 @@ const ServiceHome = () => {
                                     <div className="ms-3 font-bold">จานหลัก</div>
                                 </div>
                             </SwiperSlide>
-    
+
                             <SwiperSlide>
                                 <div className="flex items-center justify-center bg-white py-3 px-2 rounded-md">
                                     <img src={Water} alt="" />
                                     <div className="ms-3 font-bold">น้ำ</div>
                                 </div>
                             </SwiperSlide>
-    
+
                             <SwiperSlide>
                                 <div className="flex items-center justify-center bg-white py-3 px-2 rounded-md">
                                     <img src={Dessert} alt="" />
@@ -145,7 +153,7 @@ const ServiceHome = () => {
                         </Swiper>
                     </div>
                 </div>
-    
+
                 {/* Popular Items */}
                 <div className="popular mt-5">
                     <div className="container-sm">
@@ -175,7 +183,7 @@ const ServiceHome = () => {
                                     </div>
                                 </div>
                             </div>
-    
+
                             <div className="yellow-back yellow-glow rounded-xl me-2.5 w-full relative">
                                 <img
                                     src={Popular2}
@@ -195,7 +203,7 @@ const ServiceHome = () => {
                                     </div>
                                 </div>
                             </div>
-    
+
                             <div className="yellow-back yellow-glow rounded-xl w-full  relative" style={{ minHeight: "115px" }}>
                                 <img
                                     src={Popular3}
@@ -218,7 +226,7 @@ const ServiceHome = () => {
                         </div>
                     </div>
                 </div>
-    
+
                 {/* Table Items */}
                 <div className="menu mt-5">
                     <div className="container-sm">
@@ -226,12 +234,11 @@ const ServiceHome = () => {
                             <div className="font-bold">รายการโต๊ะอาหาร</div>
                             <div className="text-xs orange-text ">ดูทั้งหมด</div>
                         </div>
-                        <div className="mt-3" >
+                        <div className="mt-3">
                             {tables.map((table, index) => (
                                 <div className="mb-2" key={index} onClick={() => handleClickOpen(table.tableId)}>
                                     <div
-                                        className="flex bg-white shadow-md rounded-xl "
-                                       
+                                        className="flex bg-white shadow-md rounded-xl"
                                     >
                                         <img src={TableService} alt="" className="rounded-s-xl" />
                                         <div className="p-3 w-full flex flex-col justify-between">
@@ -255,7 +262,7 @@ const ServiceHome = () => {
                         </div>
                     </div>
                 </div>
-          </div>
+            </div>
         </div>
     );
 }

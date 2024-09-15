@@ -1,17 +1,17 @@
 package com.example.demo.controller.user;
 
+import com.example.demo.entity.user.Table_user;
+import com.example.demo.service.user.TableUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.entity.user.Table_user;
-import com.example.demo.service.user.TableUserService;
-
 import java.util.List;
-import java.util.Optional;
 
+
+@CrossOrigin(origins = "*")
 @RestController
-@CrossOrigin(origins = "https://new-deploy-order.onrender.com")
 @RequestMapping("/api/tables")
 public class TableUserController {
 
@@ -19,36 +19,39 @@ public class TableUserController {
     private TableUserService tableUserService;
 
     @GetMapping
-    public List<Table_user> getAllTables() {
-        return tableUserService.getAllTables();
+    public List<Table_user> getAllUsers() {
+        return tableUserService.getAllUsers();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Table_user> getTableById(@PathVariable("id") Long id) {
-        Optional<Table_user> table = tableUserService.getTableById(id);
-        return table.map(ResponseEntity::ok)
-                     .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Table_user> getUserById(@PathVariable("id") String id) {
+        Table_user user = tableUserService.getUserById(id);
+        if (user != null) {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping
-    public Table_user createTable(@RequestBody Table_user table) {
-        return tableUserService.createTable(table);
+    public ResponseEntity<Table_user> createUser(@RequestBody Table_user user) {
+        Table_user createdUser = tableUserService.createUser(user);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Table_user> updateTable(@PathVariable("id") Long id, @RequestBody Table_user tableDetails) {
-        Optional<Table_user> updatedTable = tableUserService.updateTable(id, tableDetails);
-        return updatedTable.map(ResponseEntity::ok)
-                           .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Table_user> updateUser(@PathVariable("id") String id, @RequestBody Table_user user) {
+        Table_user updatedUser = tableUserService.updateUser(id, user);
+        if (updatedUser != null) {
+            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTable(@PathVariable("id") Long id) {
-        boolean isDeleted = tableUserService.deleteTable(id);
-        if (isDeleted) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") String id) {
+        tableUserService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

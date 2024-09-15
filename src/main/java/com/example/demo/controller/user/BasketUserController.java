@@ -15,7 +15,7 @@ import java.util.List;
 
 
 @RestController
-@CrossOrigin(origins = "https://new-deploy-order.onrender.com")
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/baskets")
 public class BasketUserController {
 

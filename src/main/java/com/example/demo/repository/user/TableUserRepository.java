@@ -9,6 +9,6 @@ import com.example.demo.entity.user.Table_user;
 
 
 @Repository
-public interface TableUserRepository extends JpaRepository<Table_user, Long> {
+public interface TableUserRepository extends JpaRepository<Table_user, String> {
     
 }

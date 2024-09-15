@@ -11,10 +11,10 @@ export const Navbar = (props) => {
   
 
 
-  useEffect(() => {
-    const BreakeTable = JSON.parse(storedtableId);
-    console.log(BreakeTable);
-  }, [storedtableId]);
+  // useEffect(() => {
+  //   const BreakeTable = JSON.parse(storedtableId);
+  //   console.log(BreakeTable);
+  // }, [storedtableId]);
 
   // const handleBillClick = () => {
   //   if (storedtableId) {

@@ -1,10 +1,10 @@
 package com.example.demo.service.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.example.demo.entity.user.Table_user;
 import com.example.demo.repository.user.TableUserRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,36 +15,31 @@ public class TableUserService {
     @Autowired
     private TableUserRepository tableUserRepository;
 
-    public List<Table_user> getAllTables() {
+    public List<Table_user> getAllUsers() {
         return tableUserRepository.findAll();
     }
 
-    public Optional<Table_user> getTableById(Long id) {
-        return tableUserRepository.findById(id);
+    public Table_user getUserById(String id) {
+        Optional<Table_user> user = tableUserRepository.findById(id);
+        return user.orElse(null);
     }
 
-    public Table_user createTable(Table_user table) {
-        return tableUserRepository.save(table);
+    public Table_user createUser(Table_user user) {
+        return tableUserRepository.save(user);
     }
 
-    public Optional<Table_user> updateTable(Long id, Table_user tableDetails) {
-        Optional<Table_user> tableOptional = tableUserRepository.findById(id);
-        if (tableOptional.isPresent()) {
-            Table_user table = tableOptional.get();
-            table.setTableName(tableDetails.getTableName());
-            table.setStatus(tableDetails.getStatus());
-            return Optional.of(tableUserRepository.save(table));
-        } else {
-            return Optional.empty();
+    public Table_user updateUser(String id, Table_user userDetails) {
+        Optional<Table_user> userOptional = tableUserRepository.findById(id);
+        if (userOptional.isPresent()) {
+            Table_user user = userOptional.get();
+            user.setTableName(userDetails.getTableName());
+            user.setStatus(userDetails.getStatus());
+            return tableUserRepository.save(user);
         }
+        return null;
     }
 
-    public boolean deleteTable(Long id) {
-        if (tableUserRepository.existsById(id)) {
-            tableUserRepository.deleteById(id);
-            return true;
-        } else {
-            return false;
-        }
+    public void deleteUser(String id) {
+        tableUserRepository.deleteById(id);
     }
 }
