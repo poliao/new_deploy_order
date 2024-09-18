@@ -5,6 +5,9 @@ import Bar from "../assets/board/bar.svg";
 import axios from "axios";
 import { Pagination, Box } from "@mui/material";
 import { API_ROUTES } from "../components/API_share";
+import {parseJwt}  from "../components/decodeing";
+
+import LogoutIcon from '@mui/icons-material/Logout';
 
 import NavbarService from "../components/Navbar_service";
 export const serviceBoard = () => {
@@ -17,7 +20,17 @@ export const serviceBoard = () => {
 
     if (localStorage.getItem("token") === null) {
       window.location.href = "/Login";
-  }
+    }
+    if (localStorage.getItem("token") ) {
+      const decoded = parseJwt(localStorage.getItem("token") ); // ถอดรหัส JWT โดยใช้ฟังก์ชัน parseJwt
+      console.log("Decoded Token:", decoded);
+  
+      if (decoded.role != "chef") {
+        window.location.href = "/login";
+      } 
+    } else {
+      setError("No token found in response");
+    }
     axios
       .get(API_ROUTES.API_r + "/api/baskets/all", {
         params: {
@@ -43,6 +56,13 @@ export const serviceBoard = () => {
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/Login";
+  };
+
+
 
   // Map over content for the current page
   const paginatedMenuOrders = allMenuOrders.map((menuItem, menuIndex) => (
@@ -101,28 +121,36 @@ export const serviceBoard = () => {
 
   const ChangeStatus = (menuid) => {
     console.log(menuid);
+    axios.put(API_ROUTES.API_r + "/api/baskets/" + menuid + "/status?status=รอเสิร์ฟ", {
+
+    })
   };
 
   return (
     <div className="board-menage">
-    <NavbarService title="ระบบดูรายการอาหาร" />
-    <div className="container-edit">
+      <NavbarService title="ระบบดูรายการอาหาร" />
+      <div className="container-edit">
         <div className="Main-Navbar rounded-b-2xl shadow-xl sm:hidden ">
           <div className="container-sm">
             <div className="pt-14 pb-10 ">
-              <div className="grid justify-stretch">
-                <img src={Bar} alt="" />
-                <div className="justify-self-center">
-                  <div>
-                    <div className="flex justify-center">เมนู</div>
-                  </div>
+              <div className="flex justify-between ">
+                <img src={Bar} alt="" className="" />
+                <div className="flex  items-end">
+                <div className="ms-10">เมนู</div>
                 </div>
+                <div className="flex ">
+              
+                <button className="font-bold flex  items-center border-red-500 border-2 rounded-md text-red-500 px-6 py-3" onClick={ () =>  handleLogout() }>
+                  <LogoutIcon />
+                  <div className="ms-2 hidden sm:block">ออกจากระบบ</div>
+                </button>
+            </div>
               </div>
             </div>
           </div>
         </div>
         <div className="flex">
-      
+
           <div className="m-6  w-full rounded-md p-6">
             <div className="sm:flex hidden justify-center bg-white p-3 mb-3 rounded-md ">
               <div className="flex">
@@ -130,9 +158,9 @@ export const serviceBoard = () => {
                 <div className="text-2xl font-bold ">เมนู</div>
               </div>
             </div>
-  
+
             {paginatedMenuOrders}
-  
+
             {/* Pagination */}
             <Box display="flex" justifyContent="center" mt={4}>
               <Pagination
@@ -144,7 +172,7 @@ export const serviceBoard = () => {
             </Box>
           </div>
         </div>
-    </div>
+      </div>
     </div>
   );
 };

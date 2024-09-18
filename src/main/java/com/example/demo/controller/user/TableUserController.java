@@ -50,8 +50,18 @@ public class TableUserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable("id") String id) {
+    public ResponseEntity<String> deleteUser(@PathVariable("id") String id) {
         tableUserService.deleteUser(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok("Menu orders deleted successfully for table ID: " + id);
+    }
+
+    @PutMapping("/updateStatus/{tableId}")
+    public ResponseEntity<String> updateStatus(@PathVariable("tableId") String tableId, @RequestParam("status") String status) {
+        boolean isUpdated = tableUserService.updateStatusByTableId(tableId, status);
+        if (isUpdated) {
+            return ResponseEntity.ok("Status updated successfully");
+        } else {
+            return ResponseEntity.status(404).body("Table ID not found");
+        }
     }
 }

@@ -6,6 +6,12 @@ import Delete from '../assets/board/delete.svg'
 import Bar from '../assets/board/bar.svg'
 import NavbarService from '../components/Navbar_service'
 
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 
 
@@ -14,9 +20,64 @@ import NavbarService from '../components/Navbar_service'
 
 export const board_Menage = () => {
 
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+ 
 
     return (
       <div className='board-menage'>
+
+<Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        sx={{
+          "& .MuiDialogActions-root button": {
+            color: "red",
+            fontWeight: "bold",
+            fontSize: "16px",
+            border: "1px solid red",
+            padding: "10px 20px",
+            width: "100%",
+          },
+
+          "button:first-child": {
+            color: "green",
+            fontWeight: "bold",
+            fontSize: "16px",
+            border: "1px solid green",
+            padding: "10px 20px",
+          },
+        }}
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"เพิ่มจำนวนเมนู"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            <input type="number" className='border-2 border-black rounded-md py-2 px-2 w-full' />
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>
+            ตกลง
+          </Button>
+          <Button onClick={handleClose}>ยกเลิก</Button>
+        </DialogActions>
+      </Dialog>
+
+
+
+
         <NavbarService title="ระบบจัดการเมนูอาหาร" />
            <div className='Main-Navbar rounded-b-2xl shadow-xl sm:hidden '>
         <div className='container-sm'>
@@ -58,74 +119,18 @@ export const board_Menage = () => {
                   </ul>
                 </div>
              </div>
-             <div className='flex justify-end w-full  sm:items-center mt-3'>
-                <img src={Edit} alt="" className='p-2 sm:p-3 rounded-md w-full h-8 sm:w-12 sm:h-12 ' style={{backgroundColor: "#337DCC"}} />
-                <img src={Delete} alt="" className='ms-3 p-2 sm:p-3  w-full h-8  sm:w-12 sm:h-12 rounded-md orange-back' />
-             </div>
+            <div className='sm:flex items-center gap-3'>
+               <div className='w-full mt-3 flex justify-center items-center sm:px-3 py-2  text-white orange-back rounded-md sm:h-12 whitespace-nowrap '  onClick={handleClickOpen}> + เพิ่มจำนวนอาหาร</div>
+               <div className='flex justify-end w-full  sm:items-center mt-3'>
+                  <img src={Edit} alt="" className='p-2 sm:p-3 rounded-md w-full h-8 sm:w-12 sm:h-12 ' style={{backgroundColor: "#337DCC"}} />
+                  <img src={Delete} alt="" className='ms-3 p-2 sm:p-3  w-full h-8  sm:w-12 sm:h-12 rounded-md bg-red-500' />
+               </div>
+            </div>
             </div>
           </div>
 
-          <div className='sm:flex  p-6 shadow-xl rounded-xl'>
-            <div className='flex justify-center'><img src={Food} alt="" className='rounded-xl w-full' /></div>
-            <div className='sm:ms-6 sm:flex sm:justify-between w-full'>
-             <div>
-                <div className='sm:text-2xl text-md mt-3 sm:mt-0 flex justify-center text-nowrap font-bold'>ชื่ออาหาร</div>
-                <div className='mt-3 ms-3 text-sm'>
-                  <ul className='list-disc'>
-                    <li>รายละเอียด</li> 
-                    <li>รายละเอียด</li>
-                    <li>รายละเอียด</li>
-                  </ul>
-                </div>
-             </div>
-             <div className='flex justify-end w-full  sm:items-center mt-3'>
-                <img src={Edit} alt="" className='p-2 sm:p-3 rounded-md w-full h-8 sm:w-12 sm:h-12 ' style={{backgroundColor: "#337DCC"}} />
-                <img src={Delete} alt="" className='ms-3 p-2 sm:p-3  w-full h-8  sm:w-12 sm:h-12 rounded-md orange-back' />
-             </div>
-            </div>
-          </div>
+      
 
-          <div className='sm:flex  p-6 shadow-xl rounded-xl'>
-            <div className='flex justify-center'><img src={Food} alt="" className='rounded-xl w-full' /></div>
-            <div className='sm:ms-6 sm:flex sm:justify-between w-full'>
-             <div>
-                <div className='sm:text-2xl text-md mt-3 sm:mt-0 flex justify-center text-nowrap font-bold'>ชื่ออาหาร</div>
-                <div className='mt-3 ms-3 text-sm'>
-                  <ul className='list-disc'>
-                    <li>รายละเอียด</li> 
-                    <li>รายละเอียด</li>
-                    <li>รายละเอียด</li>
-                  </ul>
-                </div>
-             </div>
-             <div className='flex justify-end w-full  sm:items-center mt-3'>
-                <img src={Edit} alt="" className='p-2 sm:p-3 rounded-md w-full h-8 sm:w-12 sm:h-12 ' style={{backgroundColor: "#337DCC"}} />
-                <img src={Delete} alt="" className='ms-3 p-2 sm:p-3  w-full h-8  sm:w-12 sm:h-12 rounded-md orange-back' />
-             </div>
-            </div>
-          </div>
-
-          <div className='sm:flex  p-6 shadow-xl rounded-xl'>
-            <div className='flex justify-center'><img src={Food} alt="" className='rounded-xl w-full' /></div>
-            <div className='sm:ms-6 sm:flex sm:justify-between w-full'>
-             <div>
-                <div className='sm:text-2xl text-md mt-3 sm:mt-0 flex justify-center text-nowrap font-bold'>ชื่ออาหาร</div>
-                <div className='mt-3 ms-3 text-sm'>
-                  <ul className='list-disc'>
-                    <li>รายละเอียด</li> 
-                    <li>รายละเอียด</li>
-                    <li>รายละเอียด</li>
-                  </ul>
-                </div>
-             </div>
-             <div className='flex justify-end w-full  sm:items-center mt-3'>
-                <img src={Edit} alt="" className='p-2 sm:p-3 rounded-md w-full h-8 sm:w-12 sm:h-12 ' style={{backgroundColor: "#337DCC"}} />
-                <img src={Delete} alt="" className='ms-3 p-2 sm:p-3  w-full h-8  sm:w-12 sm:h-12 rounded-md orange-back' />
-             </div>
-            </div>
-          </div>
-        
-        
        
         </div>
        </div>

@@ -53,44 +53,53 @@ const Category = () => {
         setCategory(newCategory);
     };
 
+    const ClickGetId = (id) => {
+        window.location.href = `/menuDetail/${id}`;
+        
+    };
+
     return (
         <div>
             <NavbarCategory title={category} />
 
-            <div className="mt-36 container-edit">
-                <Swiper
-                    style={{ overflow: "hidden" }}
-                    spaceBetween={10}
-                    slidesPerView={2.7}
-                >
-                    <SwiperSlide onClick={() => handleCategoryChange("จานหลัก")}>
-                        <div className="flex items-center justify-center bg-white py-3 px-2 rounded-md cursor-pointer">
-                            <img src={MainFood} alt="Main Food" />
-                            <div className="ms-3 font-bold">จานหลัก</div>
-                        </div>
-                    </SwiperSlide>
-
-                    <SwiperSlide onClick={() => handleCategoryChange("น้ำ")}>
-                        <div className="flex items-center justify-center bg-white py-3 px-2 rounded-md cursor-pointer">
-                            <img src={Water} alt="Water" />
-                            <div className="ms-3 font-bold">น้ำ</div>
-                        </div>
-                    </SwiperSlide>
-
-                    <SwiperSlide onClick={() => handleCategoryChange("ของหวาน")}>
-                        <div className="flex items-center justify-center bg-white py-3 px-2 rounded-md cursor-pointer">
-                            <img src={Dessert} alt="Dessert" />
-                            <div className="ms-3 font-bold">ของหวาน</div>
-                        </div>
-                    </SwiperSlide>
-                </Swiper>
-            </div>
-
-            <div className='container-sm container-edit'>
-                {menu.map((data, index) => (
-                    <MenuCard key={index} name={data.namemenu} detail={data.detail} price={data.price} />
-                ))}
-            </div>
+           <div className='container-edit mt-36 '>
+              <div className='xl:bg-white xl:p-2 '>
+                    <div className="">
+                        <Swiper
+                            style={{ overflow: "hidden" }}
+                            spaceBetween={10}
+                            slidesPerView={2.7}
+                        >
+                            <SwiperSlide onClick={() => handleCategoryChange("จานหลัก")}>
+                                <div className="flex items-center justify-center bg-white py-3 px-2 rounded-md cursor-pointer xl:shadow-lg xl:border-2 xl:bg-gray-100">
+                                    <img src={MainFood} alt="Main Food" />
+                                    <div className="ms-3 font-bold">จานหลัก</div>
+                                </div>
+                            </SwiperSlide>
+        
+                            <SwiperSlide onClick={() => handleCategoryChange("น้ำ")}>
+                                <div className="flex items-center justify-center bg-white py-3 px-2 rounded-md cursor-pointer xl:shadow-lg xl:border-2 xl:bg-gray-100">
+                                    <img src={Water} alt="Water" />
+                                    <div className="ms-3 font-bold">น้ำ</div>
+                                </div>
+                            </SwiperSlide>
+        
+                            <SwiperSlide onClick={() => handleCategoryChange("ของหวาน")}>
+                                <div className="flex items-center justify-center bg-white py-3 px-2 rounded-md cursor-pointer xl:shadow-lg xl:border-2 xl:bg-gray-100">
+                                    <img src={Dessert} alt="Dessert" />
+                                    <div className="ms-3 font-bold">ของหวาน</div>
+                                </div>
+                            </SwiperSlide>
+                        </Swiper>
+                    </div>
+        
+                    <div className='container-sm '>
+                        {menu.map((data, index) => (
+                            <MenuCard key={index} name={data.namemenu} detail={data.detailmenu} price={data.price} onClick={() => ClickGetId(data.menuId)} />
+                        ))}
+                    </div>
+              </div>
+           </div>
         </div>
     );
 };

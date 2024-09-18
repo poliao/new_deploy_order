@@ -11,7 +11,10 @@ import com.example.demo.entity.user.MenuOrder_user;
 
 @Repository
 public interface MenuOrderUserRepository extends JpaRepository<MenuOrder_user, Long> {
+    @SuppressWarnings("null")
     Page<MenuOrder_user> findAll(Pageable pageable);
     
     List<MenuOrder_user> findByTable_TableId(String tableId);
+    
+    void deleteByTable_TableId(String tableId);
 }

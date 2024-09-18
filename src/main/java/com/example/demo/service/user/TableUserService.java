@@ -42,4 +42,16 @@ public class TableUserService {
     public void deleteUser(String id) {
         tableUserRepository.deleteById(id);
     }
+
+    public boolean updateStatusByTableId(String tableId, String newStatus) {
+        Optional<Table_user> tableUserOptional = tableUserRepository.findById(tableId);
+        if (tableUserOptional.isPresent()) {
+            Table_user tableUser = tableUserOptional.get();
+            tableUser.setStatus(newStatus);
+            tableUserRepository.save(tableUser);
+            return true;
+        } else {
+            return false; // ไม่พบ tableId ที่ต้องการอัพเดต
+        }
+    }
 }

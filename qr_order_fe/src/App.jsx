@@ -11,10 +11,11 @@ import Basket from './pages/basket'
 import Status from './pages/Status'
 import Category from './pages/Category';
 import ServiceHome from './pages/Service_home';
-import ServiceBoard from './pages/Service_board';
+import ChefBoard from './pages/Chef_board';
 import Payment from './pages/Payment';
 import Allmenu from './pages/Allmenu';
 import Login from './pages/Login'
+
 
 function App() {
 
@@ -30,7 +31,7 @@ function App() {
         <Route path="/basket" element={<Basket />} />
         <Route path="/status/:tableid" element={<Status />} />
         <Route path="/HomeService" element={<ServiceHome />} />
-        <Route path="/boardChef" element={<ServiceBoard />} />
+        <Route path="/boardChef" element={<ChefBoard />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/category/:namecategory" element={<Category />} />
         <Route path="/allmenu" element={<Allmenu />} />

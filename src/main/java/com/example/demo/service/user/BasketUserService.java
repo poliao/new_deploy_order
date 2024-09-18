@@ -26,7 +26,8 @@ public class BasketUserService {
     @Autowired
     private MenuOrderUserRepository menuOrderUserRepository;
 
-    // เปลี่ยนจาก List เป็น CopyOnWriteArrayList เพื่อให้สามารถลบหรือแก้ไขรายการขณะวนลูปได้อย่างปลอดภัย
+    // เปลี่ยนจาก List เป็น CopyOnWriteArrayList
+    // เพื่อให้สามารถลบหรือแก้ไขรายการขณะวนลูปได้อย่างปลอดภัย
     private final Map<String, CopyOnWriteArrayList<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
     public Page<MenuOrder_user> getAllMenuOrders(int page, int size) {
@@ -36,12 +37,28 @@ public class BasketUserService {
 
     @Transactional
     public MenuOrder_user createMenuOrder(MenuOrder_user menuOrder) {
-        // คุณสามารถเพิ่ม logic ที่จำเป็นเพิ่มเติมได้ที่นี่ เช่น ตรวจสอบข้อมูลที่จำเป็น
-        return menuOrderUserRepository.save(menuOrder); // บันทึกคำสั่งซื้อใหม่ลงฐานข้อมูล
+       
+        return menuOrderUserRepository.save(menuOrder); 
     }
 
     public List<MenuOrder_user> getBasketsByTableId(String tableId) {
         return menuOrderUserRepository.findByTable_TableId(tableId);
+    }
+
+     @Transactional
+    public String deleteMenu(Long id) {
+        Optional<MenuOrder_user> menuOpt = menuOrderUserRepository.findById(id);
+        if (menuOpt.isPresent()) {
+            menuOrderUserRepository.deleteById(id);
+            return "ลบเมนูสำเร็จ";
+        } else {
+            return "ไม่พบเมนู";
+        }
+    }
+
+    @Transactional
+    public void deleteMenuOrdersByTableId(String tableId) {
+        menuOrderUserRepository.deleteByTable_TableId(tableId);
     }
 
     // ฟังก์ชันสำหรับอัปเดตสถานะในฐานข้อมูล
@@ -80,7 +97,8 @@ public class BasketUserService {
                     int attempt = 0;
                     while (!success && attempt < retryCount) {
                         try {
-                            emitter.send(SseEmitter.event().name("statusUpdate").data(updatedOrder)); // ส่งข้อมูลผ่าน SSE
+                            emitter.send(SseEmitter.event().name("statusUpdate").data(updatedOrder)); // ส่งข้อมูลผ่าน
+                                                                                                      // SSE
                             success = true; // ส่งสำเร็จ
                         } catch (IOException | IllegalStateException e) {
                             attempt++;

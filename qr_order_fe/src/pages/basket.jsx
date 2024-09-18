@@ -13,7 +13,7 @@ const Basket = () => {
 
 
   const PostOrder = () => {
-    mergedItems.forEach((item) => {
+    const updatePromises = mergedItems.map((item) => {
       const orderData = {
         status: item.status,
         nameMenu: item.nameMenu,
@@ -28,52 +28,68 @@ const Basket = () => {
           })),
         })),
         table: {
-          tableId: "f5ce1cf0-ac23-45bd-a8d1-93fdc3e55f77", // Assuming you're sending the tableId as part of the object
+          tableId: storedtableId,
         },
       };
   
-      console.log(orderData);
+      console.log("Order Data:", orderData);
   
-      axios
+      return axios
         .post(`${API_ROUTES.API_r}/api/baskets`, orderData)
         .then((response) => {
           console.log("Order sent for item:", item.nameMenu);
           console.log(response.data);
+  
+          // เรียกใช้ API เพื่ออัปเดตจำนวนเมนูที่เหลือ
+          return axios.post(`${API_ROUTES.API_r}/admin/menus/updateTotal?namemenu=`+item.nameMenu+`&newTotal=`+item.total,)
+        })
+        .then((response) => {
+          console.log(response.data); // แสดงผลลัพธ์ของการอัปเดตจำนวนเมนู
         })
         .catch((error) => {
-          console.error("Error sending order for item:", item.nameMenu);
+          console.error("Error updating menu total for item:", item.nameMenu);
           console.error(error);
         });
     });
+  
+    Promise.all(updatePromises)
+      .then(() => {
+        localStorage.removeItem("menuOrders");
+        window.location.href = `/status/${storedtableId}`;
+      })
+      .catch((error) => {
+        console.error("Error in completing all requests", error);
+      });
   };
+  
+  
 
 useEffect(() => {
   const storedBasket = localStorage.getItem("menuOrders");
+  
   if (storedBasket) {
     const parsedBasket = JSON.parse(storedBasket);
     console.log("Parsed Basket:", parsedBasket);
 
     const newMergedItems = [];
     parsedBasket.forEach((item, index) => {
+      console.log("Item:", item); 
+      
       if (
         item.menuOrders &&
-        item.menuOrders[0] &&
-        item.menuOrders[0].optionsMenu &&
-        item.menuOrders[0].optionsMenu.length > 0
+        item.menuOrders[0]
       ) {
         const newOptionsMenu = item.menuOrders[0].optionsMenu.map((option, idx) => ({
 
           optionName: option.optionName || `Option ${idx + 1}`,
           optionDetail: [
             {
-
               optionDetails: option.optionDetail?.[0]?.optionDetails || null,
             },
           ],
         }));
 
         const newItem = {
-
           status: item.menuOrders[0].status,
           nameMenu: item.menuOrders[0].nameMenu,
           detailMenu: null, // Assuming this is null
@@ -106,7 +122,6 @@ useEffect(() => {
         newMergedItems.map((item) => ({
           menuOrders: [
             {
-
               status: item.status,
               nameMenu: item.nameMenu,
               detailMenu: item.detailMenu,
@@ -180,7 +195,7 @@ const calculateTotalPrice = () => {
 return (
   <div className="basket">
     <div className="flex justify-center ">
-      <div className="fixed bottom-0 box-monney w-full xl:w-1/2">
+      <div className="fixed bottom-0 box-monney w-full xl:w-1/2 bg-white">
         <div className="flex justify-between mb-3 ">
           <div>รวม</div>
           <div className="orange-text">฿ {calculateTotalPrice().toFixed(2)}</div>
@@ -205,68 +220,70 @@ return (
       </div>
     </div>
 
-    <div className="container-sm container-edit mt-6">
-      <div>
-        {mergedItems.map((item, index) => (
-          <div className="flex card-menu mb-3" key={index}>
-            <img src={Menu} alt="" className="object-cover" />
-            <div className="flex flex-col justify-between w-full p-2">
-              <div className="flex justify-between">
-                <div className="font-bold">{item.nameMenu}</div>
-                <div>
-                  <button
-                    className="bg-red-500 text-white p-1 rounded-md"
-                    onClick={() => removeItem(index)}
-                  >
-                    <DeleteIcon sx={{ fontSize: 24 }} />
-                  </button>
-                </div>
-              </div>
-              <ul className="text-sm list-disc ps-4">
-                {item.optionsMenu.map((detail, i) => (
-                  <li key={i}>
-                    {detail.optionDetail && detail.optionDetail[0]
-                      ? detail.optionDetail[0].optionDetails || "N/A"
-                      : "N/A"}
-                  </li>
-                ))}
-              </ul>
-              <div className="flex justify-between text-sm">
-                <div className="flex gap-2 items-center orange-text">
-                  <div>{item.price}</div>
-                  <div>บาท</div>
-                </div>
-                <div>
-                  <div className="flex items-center">
+    <div className="container-edit ">
+      <div className="container-sm mt-6">
+        <div>
+          {mergedItems.map((item, index) => (
+            <div className="flex card-menu bg-white mb-3" key={index}>
+              <img src={Menu} alt="" className="object-cover" />
+              <div className="flex flex-col justify-between w-full p-2">
+                <div className="flex justify-between">
+                  <div className="font-bold">{item.nameMenu}</div>
+                  <div>
                     <button
-                      className="rounded-md"
-                      style={{
-                        border: "1px solid #C5C5C5",
-                        width: "28px",
-                        height: "28px",
-                      }}
-                      onClick={() => decrement(index)}
+                      className="bg-red-500 text-white p-1 rounded-md"
+                      onClick={() => removeItem(index)}
                     >
-                      -
+                      <DeleteIcon sx={{ fontSize: 24 }} />
                     </button>
-                    <div className="mx-3">{item.total}</div>
-                    <button
-                      className="rounded-md orange-text"
-                      style={{
-                        border: "1px solid #FF724C",
-                        width: "28px",
-                        height: "28px",
-                      }}
-                      onClick={() => increment(index)}
-                    >
-                      +
-                    </button>
+                  </div>
+                </div>
+                <ul className="text-sm list-disc ps-4">
+                  {item.optionsMenu.map((detail, i) => (
+                    <li key={i}>
+                      {detail.optionDetail && detail.optionDetail[0]
+                        ? detail.optionDetail[0].optionDetails || "N/A"
+                        : "N/A"}
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex justify-between text-sm">
+                  <div className="flex gap-2 items-center orange-text">
+                    <div>{item.price}</div>
+                    <div>บาท</div>
+                  </div>
+                  <div>
+                    <div className="flex items-center">
+                      <button
+                        className="rounded-md"
+                        style={{
+                          border: "1px solid #C5C5C5",
+                          width: "28px",
+                          height: "28px",
+                        }}
+                        onClick={() => decrement(index)}
+                      >
+                        -
+                      </button>
+                      <div className="mx-3">{item.total}</div>
+                      <button
+                        className="rounded-md orange-text"
+                        style={{
+                          border: "1px solid #FF724C",
+                          width: "28px",
+                          height: "28px",
+                        }}
+                        onClick={() => increment(index)}
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   </div>

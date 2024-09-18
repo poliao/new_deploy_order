@@ -277,7 +277,7 @@ export const AddMenu = () => {
                       </option>
                       <option value="น้ำ">น้ำ</option>
                       <option value="ของหวาน">ของหวาน</option>
-                      <option value="ของคาว">ของคาว</option>
+                      <option value="จานหลัก">จานหลัก</option>
                     </select>
                   </div>
                 </div>
