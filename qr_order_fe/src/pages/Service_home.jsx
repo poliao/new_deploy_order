@@ -12,9 +12,11 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
+import HomeIcon from '@mui/icons-material/Home';
 
+import Bar from "../assets/board/bar.svg";
 import EditIcon from '@mui/icons-material/Edit';
-
+import logo from '../assets/logo.png'
 import MainFood from "../assets/topMenu-img/main-food.svg";
 import Water from "../assets/topMenu-img/water.svg";
 import Dessert from "../assets/topMenu-img/dessert.svg";
@@ -28,11 +30,18 @@ import { API_ROUTES } from "../components/API_share";
 import { QRCodeCanvas } from "qrcode.react";
 import Swal from "sweetalert2";
 import LogoutIcon from '@mui/icons-material/Logout';
+import InsightsIcon from '@mui/icons-material/Insights';
 
 const ServiceHome = () => {
   const [tables, setTables] = useState([]);
   const [qrValue, setQrValue] = useState("");
   const [searchQuery, setSearchQuery] = useState(""); // Add state for search query
+  const [isSidebarVisible, setSidebarVisible] = useState(false);
+
+  const handleSidebar = () => {
+    setSidebarVisible(!isSidebarVisible); // Toggle the boolean state
+  };
+
 
   useEffect(() => {
     if (localStorage.getItem("token") === null) {
@@ -52,20 +61,19 @@ const ServiceHome = () => {
   }, []);
 
   const [open, setOpen] = useState(false);
-
   const handleClickOpen = (tableId) => {
-    setQrValue(API_ROUTES.QR_Code+"/home/" + tableId);
+    setQrValue(API_ROUTES.QR_Code + "/home/" + tableId);
     setOpen(true);
 
     axios
       .put(
         API_ROUTES.API_r +
-          "/api/tables/updateStatus/" +
-          tableId +
-          "?status=ไม่ว่าง",
+        "/api/tables/updateStatus/" +
+        tableId +
+        "?status=ไม่ว่าง",
         {}
       )
-      .then((response) => {});
+      .then((response) => { });
   };
 
   const handleOpenTable = (tableId) => {
@@ -81,12 +89,12 @@ const ServiceHome = () => {
         axios
           .put(
             API_ROUTES.API_r +
-              "/api/tables/updateStatus/" +
-              tableId +
-              "?status=ว่าง",
+            "/api/tables/updateStatus/" +
+            tableId +
+            "?status=ว่าง",
             {}
           )
-          .then((response) => {});
+          .then((response) => { });
         Swal.fire("โต๊ะว่างแล้ว", "คุณแก้ไขให้โต๊ะว่างแล้ว", "success");
         window.location.reload();
       } else {
@@ -109,6 +117,8 @@ const ServiceHome = () => {
     localStorage.removeItem("token");
     window.location.href = "/Login";
   };
+
+
 
   return (
     <div>
@@ -140,26 +150,62 @@ const ServiceHome = () => {
         </DialogActions>
       </Dialog>
 
+      {isSidebarVisible && (
+        <div id="sidebar">
+          {/* Sidebar content */}
+          <div className="h-full w-3/4 sm:w-2/3  z-10 bg-white sm:p-10 p-5 pt-10 fixed">
+            <div className="flex justify-end"> <img src={Bar} alt="" className="w-8" onClick={() => handleSidebar()} /></div>
+            <div className="mt-20 font-bold ">
+              <ul className="text-sm sm:text-base">
+                <li className="gap-3 flex mb-5 orange-back p-3 text-white rounded-md shadow-md">
+                  <HomeIcon />
+                  <div>หน้าหลัก</div>
+                </li>
+                <li className="gap-3 flex mb-5 border-b-2 pb-3" onClick={() => window.location.href = "/boardService"}>
+                  <EditIcon />
+                  <div>จัดการเมนู</div>
+                </li>
+                <li className="gap-3 flex mb-5 border-b-2 pb-3" onClick={() => window.location.href = "/report"}>
+                  <InsightsIcon />
+                  <div>กระดานสรุปยอด</div>
+                </li>
+                <li className="gap-3 flex " onClick={() => handleLogout()} >
+                  <LogoutIcon />
+                  <div> ออกจากระบบ</div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="rounded-b-2xl shadow-xl bg-white mb-4">
         <div className="container-sm xl:px-10">
           <div className="pt-14 pb-10">
             <div className="flex justify-between">
-              <div className="flex items-center">
-                <img src={Table} className="me-3 w-6" alt="table" />
+              <div className="lg:hidden flex items-center">
+                <img src={Bar} alt="" className="w-8" onClick={() => handleSidebar()} />
+              </div>
+              <div className="hidden lg:flex items-center gap-3 ">
+                <img src={logo} alt="" className="w-10" />
                 <div className="font-bold flex items-end whitespace-nowrap">
                   ระบบจัดการโต๊ะ
                 </div>
               </div>
-            <div className="flex">
-                <button className="flex font-bold items-center orange-back border-2 rounded-md text-white px-6 py-3" onClick={ () =>  window.location.href = "/boardService"}>
+              <div className="flex">
+                <button className="lg:flex hidden font-bold items-center orange-back border-2 rounded-md text-white px-6 py-3" onClick={() => window.location.href = "/boardService"}>
                   <EditIcon />
                   <div className="ms-2 hidden sm:block">จัดการเมนู</div>
                 </button>
-                <button className="font-bold flex ms-3 items-center border-red-500 border-2 rounded-md text-red-500 px-6 py-3" onClick={ () =>  handleLogout() }>
+                <button className="font-bold lg:flex hidden ms-3 items-center border-yellow-500 border-2 rounded-md text-yellow-500 px-6 py-3" onClick={() => window.location.href = "/report "}>
+                  <InsightsIcon />
+                  <div className="ms-2 hidden sm:block">กระดานสรุปยอด</div>
+                </button>
+                <button className="font-bold lg:flex hidden ms-3 items-center border-red-500 border-2 rounded-md text-red-500 px-6 py-3" onClick={() => handleLogout()}>
                   <LogoutIcon />
                   <div className="ms-2 hidden sm:block">ออกจากระบบ</div>
                 </button>
-            </div>
+              </div>
 
             </div>
           </div>
@@ -167,7 +213,7 @@ const ServiceHome = () => {
       </div>
 
       <div className="container-edit ">
-        <div className="bg-white py-4">
+        <div className="lg:bg-white py-4">
           <div className="container-sm ">
             <div className="flex">
               <input
@@ -348,11 +394,10 @@ const ServiceHome = () => {
                           <div className="flex justify-end mt-3">
                             <div className="flex items-end">
                               <button
-                                className={`rounded-md px-5 py-1 text-xs md:text-sm lg:text-sm ${
-                                  table.status === "ว่าง"
+                                className={`rounded-md px-5 py-1 text-xs md:text-sm lg:text-sm ${table.status === "ว่าง"
                                     ? "bg-green-700"
                                     : "bg-red-700"
-                                } text-white`}
+                                  } text-white`}
                                 onClick={() => handleOpenTable(table.tableId)}
                               >
                                 {table.status === "ว่าง" ? "ว่าง" : "ไม่ว่าง"}

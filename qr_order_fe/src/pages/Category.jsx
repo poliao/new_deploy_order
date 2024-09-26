@@ -15,12 +15,13 @@ const Category = () => {
     const { namecategory } = useParams();
     const [category, setCategory] = useState('');
     const [menu, setMenu] = useState([]);
+    const [totalUpdates, setTotalUpdates] = useState({});
 
     useEffect(() => {
 
-      
+
         // Set the initial category based on the route param
-        if (namecategory === "MainFood")  {
+        if (namecategory === "MainFood") {
             setCategory("จานหลัก");
         } else if (namecategory === "Water") {
             setCategory("น้ำ");
@@ -35,9 +36,33 @@ const Category = () => {
         // Fetch the data from the API whenever category changes
         const fetchMenu = async () => {
             try {
-                const response = await axios.get(API_ROUTES.API_r+'/admin/menus');
+                const response = await axios.get(API_ROUTES.API_r + '/admin/menus');
                 const filteredMenu = response.data.filter(item => item.typemenu === category);
                 setMenu(filteredMenu);
+
+                const eventSources = res.data.map((item) => {
+                    const eventSource = new EventSource(API_ROUTES.API_r + `/admin/menus/subscribe/${item.menuId}`);
+
+                    eventSource.addEventListener("totalUpdate", (event) => {
+                        setTotalUpdates((prev) => ({
+                            ...prev,
+                            [item.menuId]: event.data // Store updates in the state using menuId as key
+                        }));
+
+                        item.total = event.data;
+
+                        console.log(`SSE Update for menuId ${item.menuId}: ${event.data}`);
+                    });
+
+                    return eventSource;
+                });
+
+                // Cleanup function to close all EventSources on component unmount
+                return () => {
+                    eventSources.forEach(source => source.close());
+                };
+
+
             } catch (error) {
                 console.error('Error fetching the menu:', error);
             }
@@ -55,15 +80,15 @@ const Category = () => {
 
     const ClickGetId = (id) => {
         window.location.href = `/menuDetail/${id}`;
-        
+
     };
 
     return (
         <div>
             <NavbarCategory title={category} />
 
-           <div className='container-edit mt-36 '>
-              <div className='xl:bg-white xl:p-2 '>
+            <div className='container-edit mt-36 '>
+                <div className='xl:bg-white xl:p-2 '>
                     <div className="">
                         <Swiper
                             style={{ overflow: "hidden" }}
@@ -76,14 +101,14 @@ const Category = () => {
                                     <div className="ms-3 font-bold">จานหลัก</div>
                                 </div>
                             </SwiperSlide>
-        
+
                             <SwiperSlide onClick={() => handleCategoryChange("น้ำ")}>
                                 <div className="flex items-center justify-center bg-white py-3 px-2 rounded-md cursor-pointer xl:shadow-lg xl:border-2 xl:bg-gray-100">
                                     <img src={Water} alt="Water" />
                                     <div className="ms-3 font-bold">น้ำ</div>
                                 </div>
                             </SwiperSlide>
-        
+
                             <SwiperSlide onClick={() => handleCategoryChange("ของหวาน")}>
                                 <div className="flex items-center justify-center bg-white py-3 px-2 rounded-md cursor-pointer xl:shadow-lg xl:border-2 xl:bg-gray-100">
                                     <img src={Dessert} alt="Dessert" />
@@ -92,14 +117,22 @@ const Category = () => {
                             </SwiperSlide>
                         </Swiper>
                     </div>
-        
+
                     <div className='container-sm '>
                         {menu.map((data, index) => (
-                            <MenuCard key={index} name={data.namemenu} detail={data.detailmenu} price={data.price} onClick={() => ClickGetId(data.menuId)} />
+                            <div className='relative w-full'>
+                                {(totalUpdates[data.menuId] === "Remaining total: 0" || data.total === 0) && (
+                                    <div className="absolute bg-black w-full h-full rounded-md bg-opacity-50 text-white flex justify-center items-center">
+                                        เมนูนี้หมดแล้ว
+                                    </div>
+                                )}
+                                <MenuCard key={index} name={data.namemenu} detail={data.detailmenu} price={data.price} onClick={() => ClickGetId(data.menuId)} />
+
+                            </div>
                         ))}
                     </div>
-              </div>
-           </div>
+                </div>
+            </div>
         </div>
     );
 };

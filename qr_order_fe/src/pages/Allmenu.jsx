@@ -8,16 +8,42 @@ import axios from "axios";
 const Allmenu = () => {
     const [menu, setMenu] = useState([]);
     const [searchQuery, setSearchQuery] = useState(""); // New state for search input
+    const [totalUpdates, setTotalUpdates] = useState({});
 
     useEffect(() => {
-      axios
-        .get(API_ROUTES.API_r + "/admin/menus")
-        .then((res) => {
-          setMenu(res.data);
-          console.log(res.data);
-        })
-        .catch((err) => console.log(err));
-    }, []);
+      axios.get(API_ROUTES.API_r + "/admin/menus")
+      .then((res) => {
+        setMenu(res.data);
+
+        // Create EventSource for each menuId
+        const eventSources = res.data.map((item) => {
+          const eventSource = new EventSource(API_ROUTES.API_r + `/admin/menus/subscribe/${item.menuId}`);
+
+          eventSource.addEventListener("totalUpdate", (event) => {
+            setTotalUpdates((prev) => ({
+              ...prev,
+              [item.menuId]: event.data // Store updates in the state using menuId as key
+            }));
+
+            item.total = event.data; 
+           
+
+            
+            
+
+            console.log(`SSE Update for menuId ${item.menuId}: ${event.data}`);
+          });
+
+          return eventSource;
+        });
+
+        // Cleanup function to close all EventSources on component unmount
+        return () => {
+          eventSources.forEach(source => source.close());
+        };
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
     // Filter the menu based on the search query
     const filteredMenu = menu.filter(item =>
@@ -48,18 +74,25 @@ const Allmenu = () => {
             </div>
 
             <div className='container-sm container-edit'>
-                {filteredMenu.length > 0 ? (
-                  filteredMenu.map((item, index) => (
-                    <MenuCard
-                      key={index}
-                      name={item.namemenu}
-                      detail={item.detailmenu}
-                      price={`${item.price} บาท`}
-                    />
-                  ))
-                ) : (
-                  <p className='mt-3'>ไม่มีเมนูอาหาร</p> // Show message if no items match the search query
-                )}
+            {filteredMenu.length > 0 ? (
+              filteredMenu.map((item) => (
+                <div className="relative" key={item.menuId}>
+                  {(totalUpdates[item.menuId] === "Remaining total: 0" || item.total === 0) && (
+                    <div className="absolute bg-black w-full h-full rounded-md bg-opacity-50 text-white flex justify-center items-center">
+                      เมนูนี้หมดแล้ว
+                    </div>
+                  )}
+                  <MenuCard
+                    name={item.namemenu}
+                    detail={item.detailmenu}
+                    onClick={() => ClickGetId(item.menuId)}
+                    price={`${item.price} บาท`}
+                  />
+                </div>
+              ))
+            ) : (
+              <p>ไม่มีเมนูอาหาร</p>
+            )}
             </div>
         </div>
     );

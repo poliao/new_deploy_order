@@ -15,6 +15,8 @@ import ChefBoard from './pages/Chef_board';
 import Payment from './pages/Payment';
 import Allmenu from './pages/Allmenu';
 import Login from './pages/Login'
+import Chart from './pages/Chart';
+import EditMenu from './pages/Edit_menu'
 
 
 function App() {
@@ -36,6 +38,8 @@ function App() {
         <Route path="/category/:namecategory" element={<Category />} />
         <Route path="/allmenu" element={<Allmenu />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/report" element={<Chart />} />
+        <Route path="/editMenu/:menuid" element={<EditMenu />} />
       </Routes>
     </BrowserRouter>
    </div>

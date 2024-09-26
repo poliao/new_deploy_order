@@ -30,6 +30,9 @@ public class History {
     @Column(nullable = false)
     private Integer total;
 
+    @Column(nullable = false)
+    private String typemenu;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Date createdAt;

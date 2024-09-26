@@ -27,6 +27,7 @@ const MenuDetail = () => {
     detailmenu: "",
     img: "",
     total: "",
+    typemenu: "",
     optionsmenu: [],
   });
 
@@ -42,8 +43,11 @@ const MenuDetail = () => {
         detailmenu: res.data.detailmenu,
         img: res.data.img,
         total: res.data.total,
+        typemenu: res.data.typemenu,
         optionsmenu: res.data.optionsmenu,
       });
+      
+      
 
       if (res.data.total === 0) {
         Swal.fire({
@@ -65,6 +69,7 @@ const MenuDetail = () => {
         }
       });
       setSelectedOptions(defaultOptions);
+      
     });
 
     const storedMenuOrders =
@@ -124,6 +129,7 @@ const MenuDetail = () => {
           img: menudata.img,
           total: count,
           price: menudata.price,
+          typemenu: menudata.typemenu,
           optionsMenu: menudata.optionsmenu.map((option, index) => ({
             optionName: option.option_name,
             optionDetail: [

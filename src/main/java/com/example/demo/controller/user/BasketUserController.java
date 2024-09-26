@@ -2,6 +2,7 @@ package com.example.demo.controller.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
+import java.util.concurrent.TimeUnit;
+
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/api/baskets")
@@ -23,10 +26,10 @@ public class BasketUserController {
 
   
 
-    @PostMapping
-    public MenuOrder_user createMenuOrder(@RequestBody MenuOrder_user menuOrder) {
-        return basketUserService.createMenuOrder(menuOrder);
-    }
+    // @PostMapping
+    // public MenuOrder_user createMenuOrder(@RequestBody MenuOrder_user menuOrder) {
+    //     return basketUserService.createMenuOrder(menuOrder);
+    // }
 
     @GetMapping("/all")
     public Page<MenuOrder_user> getAllMenuOrders(@RequestParam(defaultValue = "0") int page,
@@ -63,6 +66,21 @@ public class BasketUserController {
     public SseEmitter streamBasketsByTableId(@PathVariable("tableId") String tableId) {
         SseEmitter emitter = new SseEmitter(300000L); // ตั้งค่า timeout 5 นาที
         basketUserService.streamBasketsByTableId(tableId, emitter);
+        return emitter;
+    }
+
+    @PostMapping("/create")
+    public MenuOrder_user createMenuOrder(@RequestBody MenuOrder_user menuOrder) {
+        return basketUserService.createMenuOrder(menuOrder);
+    }
+
+    // สตรีมข้อมูลออเดอร์ทั้งหมดแบบเรียลไทม์ผ่าน SSE
+    @GetMapping(value = "/realtime", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter streamAllMenuOrders() {
+        SseEmitter emitter = new SseEmitter(TimeUnit.MINUTES.toMillis(30)); // ตั้ง timeout เป็น 30 นาที
+
+        basketUserService.streamAllBaskets(emitter);
+
         return emitter;
     }
 

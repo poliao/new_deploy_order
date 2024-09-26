@@ -3,8 +3,10 @@ import AddImage from "../assets/menage/add-image.png";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Swal from 'sweetalert2';
 import { API_ROUTES } from "../components/API_share";
+import { useParams } from 'react-router-dom';
 
-export const AddMenu = () => {
+
+export const EditMenu = () => {
   const [namemenu, setNameMenu] = useState("");
   const [detailmenu, setDetailMenu] = useState("");
   const [img, setImg] = useState(null);
@@ -13,21 +15,51 @@ export const AddMenu = () => {
   const [total, setTotal] = useState(1);
   const [typemenu, setTypeMenu] = useState("");
   const [optionsmenu, setOptionsMenu] = useState([]);
+  const { menuid } = useParams();
+ 
 
+  useEffect(() => {
 
+    // ดึงข้อมูลเมนูด้วย GET
+    const fetchMenu = async () => {
+      try {
+        const response = await fetch(API_ROUTES.API_r +`/admin/menus/`+menuid , {
+          method: 'GET',
+        });
+
+        const responseData = await response.json();
+        if (response.ok) {
+          // Set ข้อมูลที่ได้รับจาก API ไปที่ state
+          setNameMenu(responseData.namemenu || "");
+          setDetailMenu(responseData.detailmenu || "");
+          setImgURL(responseData.img || "");
+          setPrice(responseData.price || 1);
+          setTotal(responseData.total || 1);
+          setTypeMenu(responseData.typemenu || "");
+          setOptionsMenu(responseData.optionsmenu || []);
+        } else {
+          Swal.fire('Error', 'Failed to fetch menu details.', 'error');
+        }
+      } catch (error) {
+        console.error('Error fetching menu:', error);
+        Swal.fire('Error', 'Failed to fetch menu details.', 'error');
+      }
+    };
+
+    fetchMenu();
+  }, []); // ทำงานเมื่อ component ถูก mount
 
   const handleInputChange = (event, setValue) => {
     const value = event.target.value;
     setValue(value);
   };
 
-
   const increment = (setQuantity) => {
-    setQuantity((prevValue) => (parseInt(prevValue) || 0) + 1); // บวกค่าในฟิลด์
+    setQuantity((prevValue) => (parseInt(prevValue) || 0) + 1);
   };
 
   const decrement = (setQuantity) => {
-    setQuantity((prevValue) => (parseInt(prevValue) > 1 ? parseInt(prevValue) - 1 : 1)); // ลบค่าในฟิลด์
+    setQuantity((prevValue) => (parseInt(prevValue) > 1 ? parseInt(prevValue) - 1 : 1));
   };
 
   const handleImageChange = (event) => {
@@ -35,7 +67,6 @@ export const AddMenu = () => {
     setImg(file)
     if (file) {
       setImgURL(URL.createObjectURL(file));
-
     }
   };
 
@@ -85,91 +116,75 @@ export const AddMenu = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!namemenu || !detailmenu || !img || !price || !total || !typemenu) {
-      Swal.fire('Error', 'กรุณากรอกข้อมูลให้ครบทุกฟิลด์', 'error');
-      return; // หยุดการทำงานหากฟิลด์ใดว่าง
-    }
-  
-    // Create formData for image upload
+    const param = "your-param-here"; // ปรับ param ที่นี่
     const imageFormData = new FormData();
     if (img) {
       imageFormData.append('files', img);
     }
-  
+
     try {
-      // Upload image and get URL
-      const imageResponse = await fetch(API_ROUTES.API_r+'/admin/menus/upload', {
-        method: 'POST',
-        body: imageFormData,
-      });
-  
-      const imageResponseData = await imageResponse.json();
-      if (imageResponse.ok && imageResponseData.fileUrls && imageResponseData.fileUrls.length > 0) {
-        const uploadedImgURL = imageResponseData.fileUrls[0];
-        
-        // Prepare final JSON data
-        const menuData = {
-          namemenu,
-          detailmenu,
-          img: uploadedImgURL, // Use the URL from the image upload response
-          price,
-          total,
-          typemenu,
-          optionsmenu: optionsmenu.length ? optionsmenu : [] // Ensure it's an array
-        };
-        console.log(menuData);
-        
-  
-        // Send JSON data
-        const response = await fetch(API_ROUTES.API_r+'/admin/menus', {
+      // Upload image and get URL (ถ้าจำเป็น)
+      let uploadedImgURL = imgURL; // ใช้ URL เดิมถ้าไม่มีการอัปโหลดใหม่
+      if (img) {
+        const imageResponse = await fetch(`${API_ROUTES.API_r}/admin/menus/upload`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(menuData),
+          body: imageFormData,
         });
-  
-        const responseData = await response.text();
-  
-        if (response.ok) {
-          Swal.fire('Success', 'Menu added successfully!', 'success');
-          
-          // Reset form fields
-          setNameMenu("");
-          setDetailMenu("");
-          setImg(null);
-          setImgURL("");
-          setPrice(1);
-          setTotal(1);
-          setTypeMenu("");
-          setOptionsMenu([]);
+
+        const imageResponseData = await imageResponse.json();
+        if (imageResponse.ok && imageResponseData.fileUrls && imageResponseData.fileUrls.length > 0) {
+          uploadedImgURL = imageResponseData.fileUrls[0];
         } else {
-          // Handle error response
-          Swal.fire('Error', responseData.message || 'Failed to add menu. Please try again.', 'error');
+          Swal.fire('Error', 'Failed to upload image. Please try again.', 'error');
+          return;
         }
+      }
+
+      // Prepare final JSON data
+      const menuData = {
+        namemenu,
+        detailmenu,
+        img: uploadedImgURL, // Use the URL from the image upload response
+        price,
+        total,
+        typemenu,
+        optionsmenu: optionsmenu.length ? optionsmenu : []
+      };
+
+      // PUT request สำหรับอัปเดตข้อมูล
+      const response = await fetch(API_ROUTES.API_r +`/admin/menus/`+menuid, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(menuData),
+      });
+
+      const responseData = await response.text();
+
+      if (response.ok) {
+        Swal.fire('Success', 'Menu updated successfully!', 'success');
+        window.location.href = `/boardService`;
       } else {
-        Swal.fire('Error', 'Failed to upload image. Please try again.', 'error');
+        Swal.fire('Error', responseData.message || 'Failed to update menu. Please try again.', 'error');
       }
     } catch (error) {
       console.error('Error:', error);
-      Swal.fire('Error', 'Failed to add menu. Please try again.', 'error');
+      Swal.fire('Error', 'Failed to update menu. Please try again.', 'error');
     }
   };
 
   return (
     <div>
       <div className="add-menage ">
-        <div
-          className="orange-back"
-          style={{ height: "60px", width: "100%" }}
-        ></div>
+        <div className="orange-back" style={{ height: "60px", width: "100%" }}></div>
         <div>
-          <div className="flex justify-center font-bold my-5 ">เพิ่มเมนู</div>
+          <div className="flex justify-center font-bold my-5 ">แก้ไขเมนู</div>
           <form onSubmit={handleSubmit}>
             <div className="bg-white ">
               <div className="grid xl:grid-cols-3 xl:gap-20 p-6 mx-10 rounded-md">
                 <div className="flex justify-center">
-                  <div className="rounded-md border-2  mb-5" style={{ height: "250px", width: "250px" }}>
+                  <div className="rounded-md border-2 mb-5" style={{ height: "250px", width: "250px" }}>
                     <input
                       type="file"
                       accept="image/*"
@@ -178,7 +193,7 @@ export const AddMenu = () => {
                       id="imageInput"
                     />
                     <img
-                      src={imgURL || AddImage} // แสดงภาพที่อัปโหลด หรือภาพเริ่มต้นหากยังไม่มีการอัปโหลด
+                      src={imgURL || AddImage}
                       alt="add-image-food"
                       style={{ width: "100%", height: "100%", cursor: "pointer", objectFit: "cover" }}
                       onClick={() => document.getElementById('imageInput').click()}
@@ -205,15 +220,7 @@ export const AddMenu = () => {
 
                   <div className="mb-2">ราคาอาหาร</div>
                   <div className="flex items-center mb-6">
-                    <div
-                      onClick={() => decrement(setPrice)}
-                      className="rounded-md flex justify-center items-center"
-                      style={{
-                        border: "1px solid #C5C5C5",
-                        width: "60px",
-                        height: "40px",
-                      }}
-                    >
+                    <div onClick={() => decrement(setPrice)} className="rounded-md flex justify-center items-center" style={{ border: "1px solid #C5C5C5", width: "60px", height: "40px" }}>
                       -
                     </div>
 
@@ -225,29 +232,15 @@ export const AddMenu = () => {
                       onChange={(e) => handleInputChange(e, setPrice)}
                       value={price === "" ? "" : price}
                     />
-                    <div
-                      onClick={() => increment(setPrice)}
-                      className="rounded-md flex justify-center items-center orange-text"
-                      style={{
-                        border: "1px solid #FF724C",
-                        width: "60px",
-                        height: "40px",
-                      }}
-                    >
+                    <div onClick={() => increment(setPrice)} className="rounded-md flex justify-center items-center orange-text" style={{ border: "1px solid #FF724C", width: "60px", height: "40px" }}>
                       +
                     </div>
                   </div>
                   <div className="mb-2">จำนวนอาหาร</div>
                   <div className="flex items-center mb-6">
-                    <div
-                      onClick={() => decrement(setTotal)}
-                      className="rounded-md flex justify-center items-center"
-                      style={{
-                        border: "1px solid #C5C5C5",
-                        width: "60px",
-                        height: "40px",
-                      }}
-                    >
+                    <div onClick={() => decrement(setTotal)} className="rounded-md flex justify-center items-center" style={{ border: "1px solid #C5C5C5",                      width: "60px",
+                      height: "40px",
+                    }}>
                       -
                     </div>
                     <input
@@ -258,7 +251,6 @@ export const AddMenu = () => {
                       onChange={(e) => handleInputChange(e, setTotal)}
                       value={total === "" ? "" : total}
                     />
-
                     <div
                       onClick={() => increment(setTotal)}
                       className="rounded-md orange-text flex justify-center items-center"
@@ -358,4 +350,5 @@ export const AddMenu = () => {
   );
 };
 
-export default AddMenu;
+export default EditMenu;
+

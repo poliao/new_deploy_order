@@ -135,12 +135,12 @@ public class menuservice_add_admin {
         menuitem menuItem = menuRepository.findByNamemenu(namemenu)
             .orElseThrow(() -> new IllegalArgumentException("Menu not found"));
 
-        Long remainingTotal = menuItem.getTotal() - newTotal;
-        menuItem.setTotal(remainingTotal);
+        
+        menuItem.setTotal(newTotal);
         menuRepository.save(menuItem);
 
-        notifyClients(menuItem.getMenuId(), remainingTotal);
-        return "Remaining total for " + namemenu + " is " + remainingTotal;
+        notifyClients(menuItem.getMenuId(), newTotal);
+        return "Remaining total for " + namemenu + " is " + newTotal;
     }
 
     @Transactional

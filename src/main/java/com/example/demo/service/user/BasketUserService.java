@@ -6,7 +6,6 @@ import org.springframework.scheduling.annotation.Async;
 
 import org.springframework.stereotype.Service;
 
-
 import com.example.demo.entity.user.MenuOrder_user;
 
 import com.example.demo.repository.user.MenuOrderUserRepository;
@@ -30,22 +29,29 @@ public class BasketUserService {
     // เพื่อให้สามารถลบหรือแก้ไขรายการขณะวนลูปได้อย่างปลอดภัย
     private final Map<String, CopyOnWriteArrayList<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
+    // เก็บรายการการเชื่อมต่อ SSE
+    private final CopyOnWriteArrayList<SseEmitter> globalEmitters = new CopyOnWriteArrayList<>();
+
+    // ล็อคเพื่อใช้ในการรอการเชื่อมต่อ
+    private final Object lock = new Object();
+
     public Page<MenuOrder_user> getAllMenuOrders(int page, int size) {
         Pageable pageable = PageRequest.of(page, size); // Create pagination request
-        return menuOrderUserRepository.findAll(pageable); // Return paginated data
+        return menuOrderUserRepository.findByStatusNot("รอเสิร์ฟ", pageable); // Return paginated data excluding
+                                                                              // "รอเสิร์ฟ"
     }
 
-    @Transactional
-    public MenuOrder_user createMenuOrder(MenuOrder_user menuOrder) {
-       
-        return menuOrderUserRepository.save(menuOrder); 
-    }
+    // @Transactional
+    // public MenuOrder_user createMenuOrder(MenuOrder_user menuOrder) {
+
+    // return menuOrderUserRepository.save(menuOrder);
+    // }
 
     public List<MenuOrder_user> getBasketsByTableId(String tableId) {
         return menuOrderUserRepository.findByTable_TableId(tableId);
     }
 
-     @Transactional
+    @Transactional
     public String deleteMenu(Long id) {
         Optional<MenuOrder_user> menuOpt = menuOrderUserRepository.findById(id);
         if (menuOpt.isPresent()) {
@@ -91,28 +97,30 @@ public class BasketUserService {
     public void sendSseNotificationWithRetry(MenuOrder_user updatedOrder, int retryCount) {
         if (updatedOrder.getTable() != null) {
             CopyOnWriteArrayList<SseEmitter> sseEmitters = emitters.get(updatedOrder.getTable().getTableId());
-            if (sseEmitters != null) {
-                for (SseEmitter emitter : sseEmitters) {
-                    boolean success = false;
-                    int attempt = 0;
-                    while (!success && attempt < retryCount) {
-                        try {
-                            emitter.send(SseEmitter.event().name("statusUpdate").data(updatedOrder)); // ส่งข้อมูลผ่าน
-                                                                                                      // SSE
-                            success = true; // ส่งสำเร็จ
-                        } catch (IOException | IllegalStateException e) {
-                            attempt++;
-                            if (attempt < retryCount) {
-                                try {
-                                    // หน่วงเวลา 3 วินาทีก่อน retry
-                                    Thread.sleep(1000);
-                                } catch (InterruptedException ie) {
-                                    Thread.currentThread().interrupt(); // คืนสถานะ interrupted
-                                }
-                            } else {
-                                emitter.completeWithError(e); // ปิดการเชื่อมต่อเมื่อ retry ครบแล้ว
-                                sseEmitters.remove(emitter); // ลบ emitter ที่มีปัญหาออกจากรายการ
+            if (sseEmitters == null || sseEmitters.isEmpty()) {
+                // ไม่มีการเชื่อมต่อ SSE, ไม่ต้อง retry และส่งแจ้งเตือน
+                System.out.println("ไม่มีการเชื่อมต่อ SSE, ข้ามการส่งแจ้งเตือน...");
+                return;
+            }
+            for (SseEmitter emitter : sseEmitters) {
+                boolean success = false;
+                int attempt = 0;
+                while (!success && attempt < retryCount) {
+                    try {
+                        emitter.send(SseEmitter.event().name("statusUpdate").data(updatedOrder)); // ส่งข้อมูลผ่าน SSE
+                        success = true; // ส่งสำเร็จ
+                    } catch (IOException | IllegalStateException e) {
+                        attempt++;
+                        if (attempt < retryCount) {
+                            try {
+                                // หน่วงเวลา 1 วินาทีก่อน retry
+                                Thread.sleep(1000);
+                            } catch (InterruptedException ie) {
+                                Thread.currentThread().interrupt(); // คืนสถานะ interrupted
                             }
+                        } else {
+                            emitter.completeWithError(e); // ปิดการเชื่อมต่อเมื่อ retry ครบแล้ว
+                            sseEmitters.remove(emitter); // ลบ emitter ที่มีปัญหาออกจากรายการ
                         }
                     }
                 }
@@ -153,4 +161,65 @@ public class BasketUserService {
             emitter.completeWithError(ex);
         });
     }
+
+    @Transactional
+    public MenuOrder_user createMenuOrder(MenuOrder_user menuOrder) {
+        MenuOrder_user createdOrder = menuOrderUserRepository.save(menuOrder);
+
+        // รอการเชื่อมต่อ SSE ก่อนส่งการแจ้งเตือน
+        sendCreateOrderNotification(createdOrder);
+
+        return createdOrder;
+    }
+
+    public void sendCreateOrderNotification(MenuOrder_user createdOrder) {
+        synchronized (lock) {
+            if (globalEmitters.isEmpty()) {
+                // ไม่มีการเชื่อมต่อ SSE, เพิ่มข้อมูลเข้า database ทันที
+                System.out.println("ไม่มีการเชื่อมต่อ SSE, บันทึกออเดอร์ไปยังฐานข้อมูลโดยไม่รอ...");
+                // ทำการบันทึกหรือเพิ่ม logic ที่ต้องการเมื่อไม่มีการเชื่อมต่อ
+                return; // ออกจากฟังก์ชันเพราะไม่มีการเชื่อมต่อ
+            }
+
+            // เมื่อมีการเชื่อมต่อแล้ว ส่งการแจ้งเตือน
+            for (SseEmitter emitter : globalEmitters) {
+                try {
+                    emitter.send(SseEmitter.event().name("newOrder").data(createdOrder)); // ส่งข้อมูลออเดอร์ใหม่
+                } catch (IOException | IllegalStateException e) {
+                    emitter.completeWithError(e); // ปิดการเชื่อมต่อเมื่อเกิดข้อผิดพลาด
+                    globalEmitters.remove(emitter); // ลบ emitter ที่มีปัญหาออกจากรายการ
+                }
+            }
+        }
+    }
+
+    // ฟังก์ชันสำหรับสร้างการเชื่อมต่อ SSE
+    public void streamAllBaskets(SseEmitter emitter) {
+        globalEmitters.add(emitter);
+
+        // // แจ้งทุก thread ที่รอว่าเกิดการเชื่อมต่อแล้ว
+        // synchronized (lock) {
+        // lock.notifyAll();
+        // }
+
+        // จัดการเมื่อ connection เสร็จสิ้น
+        emitter.onCompletion(() -> {
+            globalEmitters.remove(emitter);
+        });
+
+        // จัดการเมื่อ connection หมดเวลา
+        emitter.onTimeout(() -> {
+            System.out.println("SSE connection timed out");
+            globalEmitters.remove(emitter);
+            emitter.complete();
+        });
+
+        // จัดการเมื่อเกิดข้อผิดพลาด
+        emitter.onError((ex) -> {
+            System.err.println("SSE connection error: " + ex.getMessage());
+            globalEmitters.remove(emitter);
+            emitter.completeWithError(ex);
+        });
+    }
+
 }

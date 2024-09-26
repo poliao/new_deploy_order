@@ -15,6 +15,7 @@ public class MenuOrder_user {
     private String status;
     private String nameMenu;
     private String detailMenu;
+    private String typemenu;
     private String img;
     private Integer price;
     private Integer total;

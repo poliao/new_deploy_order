@@ -85,5 +85,10 @@ public class menucontroller {
     public String updateTotal(@RequestParam("namemenu") String namemenu, @RequestParam("newTotal") Long newTotal) {
         return menuService.updateTotal(namemenu, newTotal);
     }
+
+    @PostMapping("/updateTotalsum")
+    public String updateTotalsum(@RequestParam("namemenu") String namemenu, @RequestParam("newTotal") Long newTotal) {
+        return menuService.updateTotalsum(namemenu, newTotal);
+    }
     
 }

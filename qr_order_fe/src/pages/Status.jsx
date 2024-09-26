@@ -3,7 +3,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Menu from '../assets/menu-detail/menu.png'; // Image is imported here
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import axios from 'axios';
-import { API_ROUTES } from "../components/API_share";
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const Status = () => {
     const [basketData, setBasketData] = useState([]);
@@ -15,7 +16,7 @@ const Status = () => {
     useEffect(() => {
         const fetchMenuData = async () => {
             try {
-                const response = await axios.get(API_ROUTES.API_r+`/api/baskets/table/${tableId}`);
+                const response = await axios.get(`http://localhost:8080/api/baskets/table/${tableId}`);
                 setBasketData(response.data); // `response.data` already contains the JSON parsed result
                 setLoading(false);
             } catch (error) {
@@ -26,7 +27,7 @@ const Status = () => {
 
         fetchMenuData();
 
-        const eventSource = new EventSource(API_ROUTES.API_r+`/api/baskets/table/${tableId}/realtime`);
+        const eventSource = new EventSource(`http://localhost:8080/api/baskets/table/${tableId}/realtime`);
 
         eventSource.addEventListener('statusUpdate', (event) => {
             const updatedData = JSON.parse(event.data);
@@ -43,11 +44,23 @@ const Status = () => {
         };
     }, [tableId]); // Make sure `tableId` is consistent here
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+  
+    
+
 
     return (
         <div className="basket">
+            <>
+              {/* ส่วนอื่นๆ ของ JSX */}
+             
+
+              <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={loading}
+              >
+                <CircularProgress color="inherit" />
+              </Backdrop>
+            </>
             <div className='flex justify-center'>
                 <div className='fixed bottom-0 box-monney w-full bg-white xl:w-1/2'>
                     <div className='flex justify-between mb-3'>
