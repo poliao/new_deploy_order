@@ -4,13 +4,17 @@ import MenuCard from '../components/MenuCard';
 import { API_ROUTES } from "../components/API_share";
 import Search from "../assets/topMenu-img/search.svg";
 import axios from "axios";
+import CircularProgress from '@mui/material/CircularProgress';
+import Backdrop from '@mui/material/Backdrop';
 
 const Allmenu = () => {
     const [menu, setMenu] = useState([]);
     const [searchQuery, setSearchQuery] = useState(""); // New state for search input
     const [totalUpdates, setTotalUpdates] = useState({});
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+      setLoading(true);
       axios.get(API_ROUTES.API_r + "/admin/menus")
       .then((res) => {
         setMenu(res.data);
@@ -33,6 +37,7 @@ const Allmenu = () => {
 
             console.log(`SSE Update for menuId ${item.menuId}: ${event.data}`);
           });
+          setLoading(false);
 
           return eventSource;
         });
@@ -53,13 +58,20 @@ const Allmenu = () => {
 
     return (
         <div >
+          <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit"  />
+      </Backdrop>
             <NavbarCategory title="อาหารทั้งหมด" />
 
+
             <div className="mt-36">
-                <div className="flex" style={{ paddingLeft: "12px" }}>
+                <div className="flex xl:justify-center" style={{ paddingLeft: "12px" }}>
                     <input
                       type="text"
-                      className="w-full py-2 ps-5 rounded-md xl:border-y-2 xl:border-s-2 xl:bg-gray-100"
+                      className="w-full xl:w-1/2  py-2 ps-5 rounded-md xl:border-y-2 xl:border-s-2 xl:bg-white "
                       aria-label="search"
                       title="search"
                       placeholder="ค้นหา"

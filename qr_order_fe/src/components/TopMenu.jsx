@@ -14,50 +14,56 @@ import Popular3 from "../assets/topMenu-img/popular3.png";
 import Errow from "../assets/topMenu-img/errow-right.svg";
 import MenuCard from "../components/MenuCard";
 import { API_ROUTES } from "./API_share";
+import CircularProgress from '@mui/material/CircularProgress';
+import Backdrop from '@mui/material/Backdrop';
 
 const TopMenu = () => {
   const [menu, setMenu] = useState(null);
   const [searchQuery, setSearchQuery] = useState(""); // New state for search input
   const [totalUpdates, setTotalUpdates] = useState({});
+  const [loading, setLoading] = useState(false);
 
 
   useEffect(() => {
-
-
+    setLoading(true);
+  
     // Fetch menu items
     axios.get(API_ROUTES.API_r + "/admin/menus")
       .then((res) => {
         setMenu(res.data);
-
+  
         // Create EventSource for each menuId
         const eventSources = res.data.map((item) => {
           const eventSource = new EventSource(API_ROUTES.API_r + `/admin/menus/subscribe/${item.menuId}`);
-
+  
           eventSource.addEventListener("totalUpdate", (event) => {
             setTotalUpdates((prev) => ({
               ...prev,
               [item.menuId]: event.data // Store updates in the state using menuId as key
             }));
-
-            item.total = event.data; 
-           
-
-            
-            
-
+  
+            item.total = event.data; // Optional: Update the item's total with the event data
             console.log(`SSE Update for menuId ${item.menuId}: ${event.data}`);
           });
-
+  
           return eventSource;
         });
-
+  
+        // Set loading to false once everything is set up
+        setLoading(false);
+  
         // Cleanup function to close all EventSources on component unmount
         return () => {
           eventSources.forEach(source => source.close());
         };
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+        setLoading(false); // Stop loading even in case of an error
+      });
   }, []);
+  
+
 
   const ClickGetId = (id) => {
     window.location.href = `/menuDetail/${id}`;
@@ -84,7 +90,16 @@ const TopMenu = () => {
 
 
   return (
+
+
     <div className="Top-Menu container-edit">
+
+<Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit"  />
+      </Backdrop>
       <div className="xl:bg-white xl:p-2 xl:pt-5">
         <div className="">
           <div className="flex" style={{ paddingLeft: "12px" }}>
@@ -160,10 +175,10 @@ const TopMenu = () => {
               <div>
                 <img src={Crown} alt="Crown" className="pb-1" />
               </div>
-              <div className="font-bold ms-1">ยอดนิยม</div>
+              <div className="font-bold ms-1">แนะนำ</div>
             </div>
             <div className="flex mt-6">
-              <div className="yellow-back yellow-glow rounded-xl me-2.5 w-full md:h-36 relative">
+              <div className="yellow-back yellow-glow rounded-xl me-2.5 w-full md:h-36 relative cursor-pointer " onClick={ () => {window.location.href = "/allmenu"}}>
                 <img
                   src={Popular1}
                   className="absolute lg:w-38"
@@ -187,7 +202,7 @@ const TopMenu = () => {
                 </div>
               </div>
 
-              <div className="yellow-back yellow-glow rounded-xl me-2.5 w-full relative">
+              <div className="yellow-back yellow-glow rounded-xl me-2.5 w-full relative cursor-pointer" onClick={ () => {window.location.href = "/allmenu"}}>
                 <img
                   src={Popular2}
                   className="absolute lg:w-38"
@@ -212,7 +227,7 @@ const TopMenu = () => {
               </div>
 
               <div
-                className="yellow-back yellow-glow rounded-xl w-full relative"
+                className="yellow-back yellow-glow rounded-xl w-full relative cursor-pointer" onClick={ () => {window.location.href = "/allmenu"}}
                 style={{ minHeight: "115px" }}
               >
                 <img

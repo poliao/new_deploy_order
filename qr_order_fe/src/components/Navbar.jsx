@@ -33,7 +33,7 @@ export const Navbar = (props) => {
               }
             });
           });
-      }, 1000); // Delay of 5 seconds (5000 milliseconds)
+      }, ); // Delay of 5 seconds (5000 milliseconds)
   
       // Clear the timeout if the component is unmounted or storedtableId changes
       return () => clearTimeout(timer);

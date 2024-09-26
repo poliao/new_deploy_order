@@ -19,12 +19,16 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import InsightsIcon from '@mui/icons-material/Insights';
 import EditIcon from '@mui/icons-material/Edit';
 
+import CircularProgress from '@mui/material/CircularProgress';
+import Backdrop from '@mui/material/Backdrop';
+
 export const board_Menage = () => {
   const [open, setOpen] = useState(false);
   const [menus, setMenus] = useState([]);  // state สำหรับเก็บข้อมูลเมนูที่ดึงจาก API
   const [selectedMenu, setSelectedMenu] = useState(null); // state สำหรับเก็บเมนูที่เลือก
   const [menuTotal, setMenuTotal] = useState(0); // state สำหรับเก็บจำนวนอาหาร
   const [isSidebarVisible, setSidebarVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSidebar = () => {
     setSidebarVisible(!isSidebarVisible); // Toggle the boolean state
@@ -33,12 +37,15 @@ export const board_Menage = () => {
 
   // ดึงข้อมูลเมนูจาก API
   useEffect(() => {
+    setLoading(true);
     axios
       .get(API_ROUTES.API_r + '/admin/menus')
       .then((response) => {
         setMenus(response.data); // เก็บข้อมูลเมนูใน state
+        setLoading(false);
       })
       .catch((error) => {
+        setLoading(false);
         console.error('Error fetching menus:', error);
       });
   }, []);
@@ -87,7 +94,14 @@ export const board_Menage = () => {
   }
 
   return (
+    
     <div className='board-menage'>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit"  />
+      </Backdrop>
       <Dialog
         open={open}
         onClose={handleClose}
@@ -167,7 +181,7 @@ export const board_Menage = () => {
         <div className='container-sm'>
           <div className='pt-14 pb-10 '>
             <div className='grid justify-stretch'>
-              <img onClick={ () => handleSidebar()} src={Bar} alt="" />
+              <img onClick={ () => handleSidebar()} src={Bar} alt=" " />
               <div className='justify-self-center'>
                 <div>
                   <div className='flex justify-center'>เมนู</div>

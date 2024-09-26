@@ -32,11 +32,14 @@ import Swal from "sweetalert2";
 import LogoutIcon from '@mui/icons-material/Logout';
 import InsightsIcon from '@mui/icons-material/Insights';
 
+import CircularProgress from '@mui/material/CircularProgress';
+import Backdrop from '@mui/material/Backdrop';
 const ServiceHome = () => {
   const [tables, setTables] = useState([]);
   const [qrValue, setQrValue] = useState("");
   const [searchQuery, setSearchQuery] = useState(""); // Add state for search query
   const [isSidebarVisible, setSidebarVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSidebar = () => {
     setSidebarVisible(!isSidebarVisible); // Toggle the boolean state
@@ -44,11 +47,13 @@ const ServiceHome = () => {
 
 
   useEffect(() => {
+    setLoading(true);
     if (localStorage.getItem("token") === null) {
       window.location.href = "/Login";
     }
 
     const fetchTables = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(API_ROUTES.API_r + "/api/tables");
         setTables(response.data);
@@ -57,7 +62,12 @@ const ServiceHome = () => {
       }
     };
 
+
+   
+
     fetchTables();
+
+    setLoading(false);
   }, []);
 
   const [open, setOpen] = useState(false);
@@ -122,6 +132,12 @@ const ServiceHome = () => {
 
   return (
     <div>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit"  />
+      </Backdrop>
       <Dialog
         open={open}
         onClose={handleClose}

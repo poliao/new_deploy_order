@@ -9,6 +9,8 @@ import "swiper/css";
 import MenuCard from '../components/MenuCard';
 import { useParams } from 'react-router-dom';
 import { API_ROUTES } from "../components/API_share";
+import CircularProgress from '@mui/material/CircularProgress';
+import Backdrop from '@mui/material/Backdrop';
 
 
 const Category = () => {
@@ -16,9 +18,10 @@ const Category = () => {
     const [category, setCategory] = useState('');
     const [menu, setMenu] = useState([]);
     const [totalUpdates, setTotalUpdates] = useState({});
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-
+        setLoading(true);
 
         // Set the initial category based on the route param
         if (namecategory === "MainFood") {
@@ -34,6 +37,7 @@ const Category = () => {
 
     useEffect(() => {
         // Fetch the data from the API whenever category changes
+        setLoading(true);
         const fetchMenu = async () => {
             try {
                 const response = await axios.get(API_ROUTES.API_r + '/admin/menus');
@@ -57,6 +61,8 @@ const Category = () => {
                     return eventSource;
                 });
 
+                setLoading(false);
+
                 // Cleanup function to close all EventSources on component unmount
                 return () => {
                     eventSources.forEach(source => source.close());
@@ -65,6 +71,7 @@ const Category = () => {
 
             } catch (error) {
                 console.error('Error fetching the menu:', error);
+                setLoading(false);
             }
         };
 
@@ -85,6 +92,12 @@ const Category = () => {
 
     return (
         <div>
+            <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit"  />
+      </Backdrop>
             <NavbarCategory title={category} />
 
             <div className='container-edit mt-36 '>

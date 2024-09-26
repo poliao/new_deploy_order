@@ -10,6 +10,8 @@ import { useParams } from "react-router-dom";
 import Radio from "@mui/material/Radio";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Swal from 'sweetalert2';
+import CircularProgress from '@mui/material/CircularProgress';
+import Backdrop from '@mui/material/Backdrop';
 
 const MenuDetail = () => {
   const [count, setCount] = useState(1);
@@ -17,7 +19,7 @@ const MenuDetail = () => {
   const [isBasketAnimating, setIsBasketAnimating] = useState(false); // สำหรับการควบคุมการสั่นของตะกร้า
   const [menuOrders, setMenuOrders] = useState([]);
   const [totalUpdate, setTotalUpdate] = useState(""); // สำหรับเก็บข้อมูลอัปเดตจาก SSE
-
+  const [loading, setLoading] = useState(false);
   const storedtableId = localStorage.getItem("tableId");
 
   const { menuid } = useParams(); // รับ menuid จาก URL
@@ -34,6 +36,7 @@ const MenuDetail = () => {
   const [selectedOptions, setSelectedOptions] = useState({});
 
   useEffect(() => {
+    setLoading(true);
     // เรียก API เพื่อดึงข้อมูลเมนูตาม id
     axios.get(API_ROUTES.API_r + "/admin/menus/" + menuid).then((res) => {
       setmenudata({
@@ -47,7 +50,7 @@ const MenuDetail = () => {
         optionsmenu: res.data.optionsmenu,
       });
       
-      
+      setLoading(false);
 
       if (res.data.total === 0) {
         Swal.fire({
@@ -159,6 +162,12 @@ const MenuDetail = () => {
 
   return (
     <div className="container-edit">
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit"  />
+      </Backdrop>
       <div className="menuDetail xl:bg-white relative xl:pb-1 ">
         <div className="absolute">
           {showPopup && (

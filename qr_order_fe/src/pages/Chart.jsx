@@ -8,6 +8,9 @@ import InsightsIcon from '@mui/icons-material/Insights';
 import Bar from '../assets/board/bar.svg';
 import logo from '../assets/logo.png'
 import axios from 'axios';
+import CircularProgress from '@mui/material/CircularProgress';
+import Backdrop from '@mui/material/Backdrop';
+import { API_ROUTES } from "../components/API_share";
 
 
 // const uData = [4000, 3000, 2000, 2780, 1890, 2390, 3490];
@@ -30,16 +33,18 @@ export default function Chart() {
     const [isSidebarVisible, setSidebarVisible] = useState(false);
     const [xLabels, setXLabels] = useState([]); // สำหรับ labels ของแต่ละเดือน
     const [totalSales, setTotalSales] = useState([]); // สำหรับยอดขายแต่ละเดือน
+    const [loading, setLoading] = useState(false);
 
     const handleSidebar = () => {
       setSidebarVisible(!isSidebarVisible); // Toggle the boolean state
     };
 
     useEffect(() => {
+        setLoading(true);
         // ดึงข้อมูลจาก API เมื่อ component โหลด
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/history/sales/2024');
+                const response = await axios.get(API_ROUTES.API_r +'/api/history/sales/2024');
                 const data = response.data;
 
                 // ประมวลผลข้อมูลสำหรับแสดงในกราฟ
@@ -48,12 +53,16 @@ export default function Chart() {
 
                 setXLabels(labels);
                 setTotalSales(sales);
+             
             } catch (error) {
                 console.error('Error fetching data', error);
+                setLoading(false);
+                
             }
         };
-
+     
         fetchData();
+       setLoading(false); 
     }, []);
   
 
@@ -72,6 +81,12 @@ export default function Chart() {
 
     return (
         <div className='report'>
+                <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit"  />
+      </Backdrop>
                 {isSidebarVisible && (
         <div id="sidebar">
           {/* Sidebar content */}
