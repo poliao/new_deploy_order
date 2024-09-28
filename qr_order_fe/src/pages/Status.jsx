@@ -16,7 +16,7 @@ const Status = () => {
     useEffect(() => {
         const fetchMenuData = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/api/baskets/table/${tableId}`);
+                const response = await axios.get(API_ROUTES.API_r + `/api/baskets/table/${tableId}`);
                 setBasketData(response.data); // `response.data` already contains the JSON parsed result
                 setLoading(false);
             } catch (error) {
@@ -27,7 +27,7 @@ const Status = () => {
 
         fetchMenuData();
 
-        const eventSource = new EventSource(`http://localhost:8080/api/baskets/table/${tableId}/realtime`);
+        const eventSource = new EventSource(API_ROUTES.API_r + `/api/baskets/table/${tableId}/realtime`);
 
         eventSource.addEventListener('statusUpdate', (event) => {
             const updatedData = JSON.parse(event.data);

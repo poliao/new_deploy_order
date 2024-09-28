@@ -38,6 +38,6 @@ public class FileStorageService {
         Files.copy(file.getInputStream(), filePath);
 
         // ส่งคืน URL ที่สามารถเข้าถึงไฟล์นี้ได้
-        return "http://localhost:8080/images/" + newFileName;
+        return "https://qr-order.onrender.com/images/" + newFileName;
     }
 }

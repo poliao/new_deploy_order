@@ -10,6 +10,8 @@ import logo from '../assets/logo.png'
 import axios from 'axios';
 import CircularProgress from '@mui/material/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
+import { API_ROUTES } from "../components/API_share";
+
 
 
 // const uData = [4000, 3000, 2000, 2780, 1890, 2390, 3490];
@@ -43,7 +45,7 @@ export default function Chart() {
         // ดึงข้อมูลจาก API เมื่อ component โหลด
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/history/sales/2024');
+                const response = await axios.get(API_ROUTES.API_r + '/api/history/sales/2024');
                 const data = response.data;
 
                 // ประมวลผลข้อมูลสำหรับแสดงในกราฟ
